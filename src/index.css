@@ -1,0 +1,127 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Trading Bot — Binance Dark Theme. All colors HSL. */
+
+@layer base {
+  :root {
+    /* Force dark trading theme as the default look */
+    --background: 220 13% 6%;          /* #0B0E11 */
+    --foreground: 210 17% 92%;         /* #EAECEF */
+
+    --surface: 215 14% 14%;            /* #1E2329 — card bg */
+    --surface-2: 215 12% 18%;          /* slightly lighter */
+    --border-strong: 215 10% 22%;      /* #2B3139 */
+
+    --card: 215 14% 14%;
+    --card-foreground: 210 17% 92%;
+
+    --popover: 215 14% 14%;
+    --popover-foreground: 210 17% 92%;
+
+    --primary: 45 93% 49%;             /* #F0B90B Binance yellow */
+    --primary-foreground: 220 13% 6%;
+
+    --secondary: 215 12% 18%;
+    --secondary-foreground: 210 17% 92%;
+
+    --muted: 215 12% 18%;
+    --muted-foreground: 217 8% 57%;    /* #848E9C */
+
+    --accent: 215 14% 20%;
+    --accent-foreground: 210 17% 92%;
+
+    --success: 152 88% 42%;            /* #0ECB81 */
+    --success-foreground: 220 13% 6%;
+
+    --warning: 38 96% 56%;             /* amber */
+    --warning-foreground: 220 13% 6%;
+
+    --destructive: 351 91% 62%;        /* #F6465D */
+    --destructive-foreground: 210 17% 92%;
+
+    --border: 215 10% 22%;
+    --input: 215 10% 22%;
+    --ring: 45 93% 49%;
+
+    --radius: 0.5rem;
+
+    --sidebar-background: 220 13% 5%;
+    --sidebar-foreground: 210 17% 92%;
+    --sidebar-primary: 45 93% 49%;
+    --sidebar-primary-foreground: 220 13% 6%;
+    --sidebar-accent: 215 14% 12%;
+    --sidebar-accent-foreground: 210 17% 92%;
+    --sidebar-border: 215 10% 18%;
+    --sidebar-ring: 45 93% 49%;
+
+    --gradient-primary: linear-gradient(135deg, hsl(45 93% 49%), hsl(38 96% 56%));
+    --gradient-surface: linear-gradient(180deg, hsl(215 14% 16%), hsl(215 14% 12%));
+    --shadow-elevated: 0 10px 30px -12px hsl(220 13% 0% / 0.6);
+    --shadow-glow: 0 0 24px -4px hsl(45 93% 49% / 0.35);
+  }
+
+  .dark {
+    /* same as :root — app is always dark */
+    --background: 220 13% 6%;
+    --foreground: 210 17% 92%;
+    --card: 215 14% 14%;
+    --card-foreground: 210 17% 92%;
+    --popover: 215 14% 14%;
+    --popover-foreground: 210 17% 92%;
+    --primary: 45 93% 49%;
+    --primary-foreground: 220 13% 6%;
+    --secondary: 215 12% 18%;
+    --secondary-foreground: 210 17% 92%;
+    --muted: 215 12% 18%;
+    --muted-foreground: 217 8% 57%;
+    --accent: 215 14% 20%;
+    --accent-foreground: 210 17% 92%;
+    --destructive: 351 91% 62%;
+    --destructive-foreground: 210 17% 92%;
+    --border: 215 10% 22%;
+    --input: 215 10% 22%;
+    --ring: 45 93% 49%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  html {
+    @apply dark;
+  }
+
+  body {
+    @apply bg-background text-foreground antialiased;
+    font-feature-settings: "cv02", "cv03", "cv04", "cv11";
+  }
+
+  /* Tabular numerics for trading data */
+  .tabular-nums { font-variant-numeric: tabular-nums; }
+}
+
+@layer utilities {
+  .text-success { color: hsl(var(--success)); }
+  .text-danger { color: hsl(var(--destructive)); }
+  .bg-success { background-color: hsl(var(--success)); }
+  .bg-danger { background-color: hsl(var(--destructive)); }
+  .bg-surface { background-color: hsl(var(--surface)); }
+  .bg-surface-2 { background-color: hsl(var(--surface-2)); }
+  .border-strong { border-color: hsl(var(--border-strong)); }
+  .gradient-primary { background: var(--gradient-primary); }
+  .gradient-surface { background: var(--gradient-surface); }
+  .shadow-elevated { box-shadow: var(--shadow-elevated); }
+  .shadow-glow { box-shadow: var(--shadow-glow); }
+
+  .pulse-dot {
+    animation: pulse-dot 1.6s ease-in-out infinite;
+  }
+  @keyframes pulse-dot {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.5; transform: scale(1.2); }
+  }
+}
