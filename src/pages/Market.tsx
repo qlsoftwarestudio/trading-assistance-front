@@ -1,85 +1,94 @@
-import { useMarketStream } from "@/shared/hooks/useMarketStream";
-import { PriceTicker } from "@/components/organisms/PriceTicker";
-import { MarketIndicators } from "@/components/organisms/MarketIndicators";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { StrategyBadge } from "@/components/molecules/StrategyBadge";
-import { Sparkline } from "@/components/atoms/Sparkline";
-import { useEffect, useRef, useState } from "react";
+import { useQuery } from "@tanstack/react-query";
+import { api } from "@/shared/api/client";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { Badge } from "@/components/ui/badge";
+import { cn } from "@/lib/utils";
+import type { Signal } from "@/shared/types";
+
+const actionStyle = (action: Signal["action"]) => {
+  if (action === "LONG") return "border-success/40 text-success";
+  if (action === "SHORT") return "border-destructive/40 text-destructive";
+  return "border-muted text-muted-foreground";
+};
+
+const fmt = (v: number | undefined, decimals = 2) =>
+  v !== undefined ? v.toFixed(decimals) : "—";
+
+const fmtDate = (iso: string) =>
+  new Date(iso).toLocaleString("es-ES", { day: "2-digit", month: "2-digit", hour: "2-digit", minute: "2-digit" });
 
 const Market = () => {
-  const { data: market, connected } = useMarketStream();
-  const [history, setHistory] = useState<{ value: number }[]>([]);
-  const last = useRef<number>(0);
-
-  useEffect(() => {
-    if (!market) return;
-    if (market.currentPrice !== last.current) {
-      last.current = market.currentPrice;
-      setHistory((h) => [...h.slice(-59), { value: market.currentPrice }]);
-    }
-  }, [market]);
-
-  if (!market) return <div className="text-muted-foreground text-sm">Conectando al stream de mercado…</div>;
+  const { data, isLoading } = useQuery({
+    queryKey: ["signals"],
+    queryFn: () => api.getSignals(),
+    refetchInterval: 30_000,
+  });
+  const signals = Array.isArray(data) ? data : [];
 
   return (
     <div className="space-y-5 max-w-[1400px] mx-auto">
       <div>
-        <h1 className="text-2xl font-bold tracking-tight">Mercado en tiempo real</h1>
-        <p className="text-sm text-muted-foreground">Indicadores actualizados cada 2s · estrategia detectada automáticamente</p>
+        <h1 className="text-2xl font-bold tracking-tight">Log de Señales</h1>
+        <p className="text-sm text-muted-foreground">Últimas 50 señales generadas por la estrategia · actualización cada 30s</p>
       </div>
 
-      <PriceTicker data={market} connected={connected} />
-
-      {history.length > 1 && (
-        <Card className="border-strong bg-surface">
-          <CardHeader className="pb-1">
-            <CardTitle className="text-sm text-muted-foreground font-medium">Movimiento reciente</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <Sparkline
-              data={history}
-              positive={history[history.length - 1].value >= history[0].value}
-              height={80}
-            />
-          </CardContent>
-        </Card>
-      )}
-
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
-        <MarketIndicators data={market} />
-        <Card className="border-strong bg-surface">
-          <CardHeader className="pb-3">
-            <CardTitle className="text-sm text-muted-foreground font-medium">Estrategia recomendada</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="flex items-center gap-2">
-              <StrategyBadge condition={market.marketCondition} />
-            </div>
-            <p className="text-sm text-muted-foreground">
-              {market.marketCondition === "RANGING" && "Mercado lateral. La estrategia Range opera entre soportes y resistencias."}
-              {market.marketCondition === "TREND_UP" && "Tendencia alcista detectada. La estrategia Trend Following sigue el momentum."}
-              {market.marketCondition === "TREND_DOWN" && "Tendencia bajista. El bot opera en corto si está habilitado."}
-              {market.marketCondition === "SCALPING_OPPORTUNITY" && "Alta volatilidad. La estrategia Scalping captura movimientos cortos."}
-              {market.marketCondition === "NEUTRAL" && "Sin condiciones claras. El bot espera una señal definitiva."}
-            </p>
-            {market.levels && (
-              <div className="grid grid-cols-2 gap-3 pt-2 border-t border-strong">
-                <div>
-                  <p className="text-[10px] uppercase tracking-wider text-muted-foreground mb-1">Soportes</p>
-                  <ul className="space-y-0.5 font-mono text-xs text-success">
-                    {market.levels.support.slice(0, 3).map((s) => <li key={s}>${s.toLocaleString()}</li>)}
-                  </ul>
-                </div>
-                <div>
-                  <p className="text-[10px] uppercase tracking-wider text-muted-foreground mb-1">Resistencias</p>
-                  <ul className="space-y-0.5 font-mono text-xs text-destructive">
-                    {market.levels.resistance.slice(0, 3).map((r) => <li key={r}>${r.toLocaleString()}</li>)}
-                  </ul>
-                </div>
-              </div>
+      <div className="rounded-lg border border-strong bg-surface overflow-hidden">
+        <Table>
+          <TableHeader>
+            <TableRow className="border-strong hover:bg-transparent">
+              <TableHead className="text-xs uppercase tracking-wider text-muted-foreground">Fecha</TableHead>
+              <TableHead className="text-xs uppercase tracking-wider text-muted-foreground">Señal</TableHead>
+              <TableHead className="text-xs uppercase tracking-wider text-muted-foreground text-right">Precio</TableHead>
+              <TableHead className="text-xs uppercase tracking-wider text-muted-foreground text-right">RSI</TableHead>
+              <TableHead className="text-xs uppercase tracking-wider text-muted-foreground text-right">Momentum</TableHead>
+              <TableHead className="text-xs uppercase tracking-wider text-muted-foreground">Tendencia 1h/4h/1d</TableHead>
+              <TableHead className="text-xs uppercase tracking-wider text-muted-foreground">Confluencia</TableHead>
+              <TableHead className="text-xs uppercase tracking-wider text-muted-foreground">Ejecutada</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {isLoading && (
+              <TableRow>
+                <TableCell colSpan={8} className="text-center py-10 text-muted-foreground text-sm">Cargando señales…</TableCell>
+              </TableRow>
             )}
-          </CardContent>
-        </Card>
+            {!isLoading && signals.length === 0 && (
+              <TableRow>
+                <TableCell colSpan={8} className="text-center py-10 text-muted-foreground text-sm">No hay señales registradas aún</TableCell>
+              </TableRow>
+            )}
+            {signals.map((s) => (
+              <TableRow key={s.id} className="border-strong hover:bg-surface-2/50">
+                <TableCell className="text-xs text-muted-foreground whitespace-nowrap">{fmtDate(s.generatedAt)}</TableCell>
+                <TableCell>
+                  <Badge variant="outline" className={cn("font-mono text-[10px]", actionStyle(s.action))}>
+                    {s.action}
+                  </Badge>
+                </TableCell>
+                <TableCell className="text-right font-mono tabular-nums text-sm">${fmt(s.price, 4)}</TableCell>
+                <TableCell className="text-right font-mono tabular-nums text-sm">{fmt(s.rsi)}</TableCell>
+                <TableCell className="text-right font-mono tabular-nums text-sm">{fmt(s.momentum)}%</TableCell>
+                <TableCell className="font-mono text-xs">
+                  {s.trend1h ?? "—"} / {s.trend4h ?? "—"} / {s.trend1d ?? "—"}
+                </TableCell>
+                <TableCell>
+                  {s.confluence !== undefined ? (
+                    <Badge variant="outline" className={cn("text-[10px]", s.confluence ? "border-success/40 text-success" : "border-muted text-muted-foreground")}>
+                      {s.confluence ? "SÍ" : "NO"}
+                    </Badge>
+                  ) : "—"}
+                </TableCell>
+                <TableCell>
+                  {s.executed !== undefined ? (
+                    <Badge variant="outline" className={cn("text-[10px]", s.executed ? "border-primary/40 text-primary" : "border-muted text-muted-foreground")}>
+                      {s.executed ? "SÍ" : "NO"}
+                    </Badge>
+                  ) : "—"}
+                </TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
       </div>
     </div>
   );

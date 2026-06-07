@@ -11,22 +11,21 @@ export const RequireAuth = ({ children }: { children: ReactNode }) => {
 };
 
 /**
- * Requires a logged-in user that has completed onboarding (i.e. belongs to a tenant).
- * Used for all app routes (dashboard, trades, market, config…).
+ * Phase 1: same as RequireAuth — tenant check removed.
+ * Phase 2: restore `if (!user.tenantId) return <Navigate to="/onboarding" replace />`.
  */
 export const RequireOnboarded = ({ children }: { children: ReactNode }) => {
   const user = useAuthStore((s) => s.user);
   const location = useLocation();
   if (!user) return <Navigate to="/login" replace state={{ from: location.pathname }} />;
-  if (!user.tenantId) return <Navigate to="/onboarding" replace />;
   return <>{children}</>;
 };
 
-/** Admin-only routes. */
+/** Admin-only routes. Phase 1: only checks role === "ADMIN". */
 export const RequireAdmin = ({ children }: { children: ReactNode }) => {
   const user = useAuthStore((s) => s.user);
-  if (!user) return <Navigate to="/login" replace />;
-  if (!user.tenantId) return <Navigate to="/onboarding" replace />;
+  const location = useLocation();
+  if (!user) return <Navigate to="/login" replace state={{ from: location.pathname }} />;
   if (user.role !== "ADMIN") return <Navigate to="/" replace />;
   return <>{children}</>;
 };

@@ -17,7 +17,8 @@ export const TopNav = () => {
   const selectUser = useAuthStore((s) => s.selectUser);
   const logout = useAuthStore((s) => s.logout);
   const navigate = useNavigate();
-  const { data: portfolio } = useQuery({ queryKey: ["portfolio-mini"], queryFn: () => api.getPortfolio(), refetchInterval: 4000 });
+  const { data: summary } = useQuery({ queryKey: ["dashboard-summary"], queryFn: () => api.getDashboardSummary(), refetchInterval: 5_000 });
+  const dailyPnLPercent = summary && summary.balance ? (summary.totalPnl / summary.balance) * 100 : null;
 
   const handleLogout = () => { logout(); navigate("/login"); };
   const handleSwitchBot = async (userId: number) => {
@@ -27,7 +28,7 @@ export const TopNav = () => {
     } catch (e) { toast.error(e instanceof Error ? e.message : "No se pudo cambiar de bot"); }
   };
 
-  const hasMultipleBots = availableUsers.length > 1;
+  const hasMultipleBots = (availableUsers ?? []).length > 1;
 
   return (
     <header className="sticky top-0 z-30 flex h-14 items-center justify-between gap-3 border-b border-strong bg-background/80 backdrop-blur px-3 sm:px-4">
@@ -68,10 +69,10 @@ export const TopNav = () => {
           </DropdownMenu>
         )}
 
-        {portfolio && (
+        {dailyPnLPercent != null && (
           <div className="hidden sm:flex items-center gap-2 text-xs">
             <span className="text-muted-foreground">P&L hoy</span>
-            <PnLBadge value={portfolio.dailyPnLPercent} />
+            <PnLBadge value={dailyPnLPercent} />
           </div>
         )}
         <BotToggle variant="compact" />

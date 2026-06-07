@@ -1,304 +1,247 @@
-import { useMemo, useState } from "react";
+import { useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { api } from "@/shared/api/client";
-import { Card, CardContent } from "@/components/ui/card";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { StatusDot } from "@/components/atoms/StatusDot";
-import { DollarSign, Loader2, TrendingUp, UserPlus, Users, Trash2 } from "lucide-react";
+import { Separator } from "@/components/ui/separator";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription as DlgDesc } from "@/components/ui/dialog";
+import { Activity, TrendingUp, BarChart2, Clock, Play, RefreshCw, Send, Loader2, FlaskConical } from "lucide-react";
 import { toast } from "sonner";
-import { PLAN_PRICE, type Plan, type Role } from "@/shared/types";
-import { useAuthStore } from "@/store/authStore";
-import { formatCurrency } from "@/shared/lib/format";
+import { cn } from "@/lib/utils";
+import type { BacktestResult, Signal } from "@/shared/types";
 
-const planStyle: Record<Plan, string> = {
-  FREE:       "border-muted-foreground/40 text-muted-foreground",
-  STARTER:    "border-success/40 text-success",
-  PRO:        "border-primary/40 text-primary",
-  ENTERPRISE: "border-warning/40 text-warning",
-};
+const fmt = (v: number | undefined, d = 2) => v !== undefined ? v.toFixed(d) : "—";
+const fmtDate = (iso: string | undefined) =>
+  iso ? new Date(iso).toLocaleString("es-ES", { day: "2-digit", month: "2-digit", hour: "2-digit", minute: "2-digit" }) : "—";
 
 const Admin = () => {
   const qc = useQueryClient();
-  const me = useAuthStore((s) => s.user);
+  const [backtestResult, setBacktestResult] = useState<BacktestResult | null>(null);
+  const [backtestOpen, setBacktestOpen] = useState(false);
 
-  const { data: tenants = [] }  = useQuery({ queryKey: ["tenants"],  queryFn: () => api.getTenants() });
-  const { data: users   = [] }  = useQuery({ queryKey: ["users"],    queryFn: () => api.getUsers() });
-  const { data: metrics }       = useQuery({ queryKey: ["metrics"],  queryFn: () => api.getPlatformMetrics() });
+  const { data: health } = useQuery({ queryKey: ["admin-health"], queryFn: () => api.getAdminHealth(), refetchInterval: 15_000 });
+  const { data: cfg } = useQuery({ queryKey: ["admin-config"], queryFn: () => api.getAdminConfig() });
+  const { data: signalsRaw } = useQuery({ queryKey: ["signals"], queryFn: () => api.getSignals(), refetchInterval: 30_000 });
+  const signals = Array.isArray(signalsRaw) ? signalsRaw : [];
 
-  // ------- Create user dialog (multi-bot, Enterprise) -------
-  const [open, setOpen] = useState(false);
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [name, setName] = useState("");
-  const [role, setRole] = useState<Role>("TRADER");
-
-  const createUserMut = useMutation({
-    mutationFn: () => api.createUser({ email: email.trim(), password, name: name.trim() || undefined, role }),
-    onSuccess: () => {
-      toast.success("Usuario creado");
-      qc.invalidateQueries({ queryKey: ["users"] });
-      qc.invalidateQueries({ queryKey: ["tenants"] });
-      setOpen(false); setEmail(""); setPassword(""); setName("");
-    },
-    onError: (e: Error) => toast.error(e.message),
+  const { mutate: execStrategy, isPending: executing } = useMutation({
+    mutationFn: () => api.executeStrategy(),
+    onSuccess: (r) => { toast.success(r.message); qc.invalidateQueries({ queryKey: ["signals"] }); },
+    onError: () => toast.error("Error al ejecutar estrategia"),
   });
 
-  const deleteUserMut = useMutation({
-    mutationFn: (userId: number) => api.deleteUser(userId),
-    onSuccess: () => { toast.success("Usuario eliminado"); qc.invalidateQueries({ queryKey: ["users"] }); },
-    onError: (e: Error) => toast.error(e.message),
+  const { mutate: monitorTrades, isPending: monitoring } = useMutation({
+    mutationFn: () => api.monitorTrades(),
+    onSuccess: (r) => toast.success(r.message),
+    onError: () => toast.error("Error al monitorear trades"),
   });
 
-  const toggleUserMut = useMutation({
-    mutationFn: ({ userId, active }: { userId: number; active: boolean }) => api.updateUser(userId, { active }),
-    onSuccess: (u) => {
-      toast.success(`Usuario ${u.active ? "activado" : "suspendido"}`);
-      qc.invalidateQueries({ queryKey: ["users"] });
-    },
+  const { mutate: testTelegram, isPending: testingTg } = useMutation({
+    mutationFn: () => api.testTelegram(),
+    onSuccess: (r) => toast.success(r.message),
+    onError: () => toast.error("Error al enviar test Telegram"),
   });
 
-  const planMut = useMutation({
-    mutationFn: ({ tenantId, plan }: { tenantId: number; plan: Plan }) => api.setTenantPlan(tenantId, plan),
-    onSuccess: (t) => {
-      toast.success(`Plan actualizado a ${t.plan}`);
-      qc.invalidateQueries({ queryKey: ["tenants"] });
-      qc.invalidateQueries({ queryKey: ["users"] });
-      qc.invalidateQueries({ queryKey: ["metrics"] });
-    },
-    onError: (e: Error) => toast.error(e.message),
+  const { mutate: runBacktest, isPending: runningBacktest } = useMutation({
+    mutationFn: () => api.runBacktest(500),
+    onSuccess: (r) => { setBacktestResult(r); setBacktestOpen(true); toast.success("Backtest completado"); },
+    onError: () => toast.error("Error en el backtest"),
   });
 
-  const toggleTenantMut = useMutation({
-    mutationFn: ({ tenantId, active }: { tenantId: number; active: boolean }) => api.toggleTenant(tenantId, active),
-    onSuccess: () => { toast.success("Tenant actualizado"); qc.invalidateQueries({ queryKey: ["tenants"] }); qc.invalidateQueries({ queryKey: ["metrics"] }); },
+  const { mutate: runWalkForward, isPending: runningWF } = useMutation({
+    mutationFn: () => api.runWalkForwardBacktest(500),
+    onSuccess: (r) => { setBacktestResult(r); setBacktestOpen(true); toast.success("Walk-forward completado"); },
+    onError: () => toast.error("Error en el walk-forward"),
   });
-
-  const myTenantUsers = useMemo(() => users.filter((u) => u.tenantId === me?.tenantId), [users, me]);
 
   return (
-    <div className="space-y-5 max-w-[1400px] mx-auto">
-      <div className="flex items-start justify-between gap-3 flex-wrap">
-        <div>
-          <h1 className="text-2xl font-bold tracking-tight">Admin Panel</h1>
-          <p className="text-sm text-muted-foreground">Gestión de tenants, bots y suscripciones</p>
-        </div>
-
-        <Dialog open={open} onOpenChange={setOpen}>
-          <DialogTrigger asChild>
-            <Button className="bg-primary text-primary-foreground hover:bg-primary/90">
-              <UserPlus className="h-4 w-4 mr-2" /> Crear usuario (bot)
-            </Button>
-          </DialogTrigger>
-          <DialogContent className="bg-surface border-strong">
-            <DialogHeader>
-              <DialogTitle>Crear nuevo usuario</DialogTitle>
-              <DialogDescription>
-                Cada usuario es un bot independiente con sus propias API keys. Tu plan permite hasta {tenants.find(t => t.id === me?.tenantId)?.maxUsers ?? 1} usuarios.
-              </DialogDescription>
-            </DialogHeader>
-            <form onSubmit={(e) => { e.preventDefault(); if (password.length < 8) { toast.error("Password mín. 8 caracteres"); return; } createUserMut.mutate(); }} className="space-y-4">
-              <div className="space-y-2">
-                <Label htmlFor="u-email">Email</Label>
-                <Input id="u-email" type="email" required value={email} onChange={(e) => setEmail(e.target.value)} placeholder="trader@empresa.com" />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="u-name">Nombre</Label>
-                <Input id="u-name" value={name} onChange={(e) => setName(e.target.value)} placeholder="Trader Junior" />
-              </div>
-              <div className="grid grid-cols-2 gap-3">
-                <div className="space-y-2">
-                  <Label htmlFor="u-pwd">Password inicial</Label>
-                  <Input id="u-pwd" type="password" required minLength={8} value={password} onChange={(e) => setPassword(e.target.value)} />
-                </div>
-                <div className="space-y-2">
-                  <Label>Rol</Label>
-                  <Select value={role} onValueChange={(v) => setRole(v as Role)}>
-                    <SelectTrigger><SelectValue /></SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="TRADER">TRADER</SelectItem>
-                      <SelectItem value="ADMIN">ADMIN</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-              </div>
-              <DialogFooter>
-                <Button type="button" variant="outline" onClick={() => setOpen(false)}>Cancelar</Button>
-                <Button type="submit" disabled={createUserMut.isPending} className="bg-primary text-primary-foreground hover:bg-primary/90">
-                  {createUserMut.isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                  Crear usuario
-                </Button>
-              </DialogFooter>
-            </form>
-          </DialogContent>
-        </Dialog>
+    <div className="space-y-8 max-w-[1400px] mx-auto">
+      <div>
+        <h1 className="text-2xl font-bold tracking-tight">Panel de Administración</h1>
+        <p className="text-sm text-muted-foreground">Operaciones del bot, salud del sistema y backtest</p>
       </div>
 
-      {/* KPIs (platform metrics) */}
-      <div className="grid grid-cols-1 sm:grid-cols-4 gap-4">
-        <Card className="border-strong bg-surface gradient-surface">
-          <CardContent className="p-5">
-            <div className="flex items-center justify-between mb-2">
-              <span className="text-xs uppercase tracking-wider text-muted-foreground">Tenants activos</span>
-              <Users className="h-4 w-4 text-primary" />
+      {/* Health KPIs */}
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+        <Card className="border-strong bg-surface">
+          <CardContent className="p-4">
+            <div className="flex items-center gap-2 mb-2">
+              <Activity className="h-4 w-4 text-primary" />
+              <span className="text-xs text-muted-foreground uppercase tracking-wide">Estrategia</span>
             </div>
-            <div className="text-3xl font-bold tabular-nums">
-              {metrics?.platform.tenants.active ?? 0}
-              <span className="text-sm text-muted-foreground"> / {metrics?.platform.tenants.total ?? 0}</span>
-            </div>
+            <Badge variant="outline" className={health?.strategyEnabled ? "border-success/40 text-success" : "border-muted text-muted-foreground"}>
+              {health?.strategyEnabled ? "Activa" : "Deshabilitada"}
+            </Badge>
+            <p className="text-xs text-muted-foreground mt-1">{health?.symbol} · {health?.timeframe}</p>
           </CardContent>
         </Card>
-        <Card className="border-strong bg-surface gradient-surface">
-          <CardContent className="p-5">
-            <div className="flex items-center justify-between mb-2">
-              <span className="text-xs uppercase tracking-wider text-muted-foreground">Bots activos</span>
-              <Users className="h-4 w-4 text-primary" />
-            </div>
-            <div className="text-3xl font-bold tabular-nums">
-              {metrics?.platform.bots.active ?? 0}
-              <span className="text-sm text-muted-foreground"> / {metrics?.platform.bots.total ?? 0}</span>
-            </div>
-          </CardContent>
-        </Card>
-        <Card className="border-strong bg-surface gradient-surface">
-          <CardContent className="p-5">
-            <div className="flex items-center justify-between mb-2">
-              <span className="text-xs uppercase tracking-wider text-muted-foreground">MRR</span>
-              <DollarSign className="h-4 w-4 text-success" />
-            </div>
-            <div className="text-3xl font-bold text-success tabular-nums">${metrics?.revenue.mrr ?? 0}</div>
-            <p className="text-[10px] text-muted-foreground mt-1">ARR ${metrics?.revenue.arr ?? 0}</p>
-          </CardContent>
-        </Card>
-        <Card className="border-strong bg-surface gradient-surface">
-          <CardContent className="p-5">
-            <div className="flex items-center justify-between mb-2">
-              <span className="text-xs uppercase tracking-wider text-muted-foreground">Capital gestionado</span>
+        <Card className="border-strong bg-surface">
+          <CardContent className="p-4">
+            <div className="flex items-center gap-2 mb-2">
               <TrendingUp className="h-4 w-4 text-primary" />
+              <span className="text-xs text-muted-foreground uppercase tracking-wide">Posiciones</span>
             </div>
-            <div className="text-3xl font-bold tabular-nums">{formatCurrency(metrics?.trading.totalCapitalManaged ?? 0)}</div>
+            <p className="text-2xl font-bold">{health?.openTrades ?? "—"}</p>
+            <p className="text-xs text-muted-foreground">de {health?.totalTrades ?? "—"} totales</p>
+          </CardContent>
+        </Card>
+        <Card className="border-strong bg-surface">
+          <CardContent className="p-4">
+            <div className="flex items-center gap-2 mb-2">
+              <BarChart2 className="h-4 w-4 text-primary" />
+              <span className="text-xs text-muted-foreground uppercase tracking-wide">Última señal</span>
+            </div>
+            <p className="text-xs font-mono">{fmtDate(health?.lastSignalAt)}</p>
+            <p className="text-xs text-muted-foreground mt-1">Binance: {health?.binanceTestnet ? "testnet" : "live"}</p>
+          </CardContent>
+        </Card>
+        <Card className="border-strong bg-surface">
+          <CardContent className="p-4">
+            <div className="flex items-center gap-2 mb-2">
+              <Clock className="h-4 w-4 text-primary" />
+              <span className="text-xs text-muted-foreground uppercase tracking-wide">Uptime</span>
+            </div>
+            <p className="text-lg font-bold font-mono">{health?.uptime ?? "—"}</p>
+            <p className="text-xs text-muted-foreground">Telegram: {health?.telegramEnabled ? "activo" : "off"}</p>
           </CardContent>
         </Card>
       </div>
 
-      <Tabs defaultValue="tenants" className="w-full">
-        <TabsList className="bg-surface border border-strong">
-          <TabsTrigger value="tenants">Tenants</TabsTrigger>
-          <TabsTrigger value="users">Usuarios (mi tenant)</TabsTrigger>
-        </TabsList>
+      {/* Manual Controls */}
+      <Card className="border-strong bg-surface">
+        <CardHeader className="pb-3">
+          <CardTitle className="text-base">Controles manuales</CardTitle>
+          <CardDescription>Ejecuta operaciones del bot manualmente</CardDescription>
+        </CardHeader>
+        <CardContent className="flex flex-wrap gap-3">
+          <Button onClick={() => execStrategy()} disabled={executing}>
+            {executing ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : <Play className="h-4 w-4 mr-2" />}
+            Ejecutar estrategia
+          </Button>
+          <Button variant="outline" onClick={() => monitorTrades()} disabled={monitoring}>
+            {monitoring ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : <RefreshCw className="h-4 w-4 mr-2" />}
+            Monitorear trades
+          </Button>
+          <Button variant="outline" onClick={() => testTelegram()} disabled={testingTg}>
+            {testingTg ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : <Send className="h-4 w-4 mr-2" />}
+            Test Telegram
+          </Button>
+          <Separator orientation="vertical" className="h-9 hidden sm:block" />
+          <Button variant="secondary" onClick={() => runBacktest()} disabled={runningBacktest || runningWF}>
+            {runningBacktest ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : <FlaskConical className="h-4 w-4 mr-2" />}
+            Backtest (500 velas)
+          </Button>
+          <Button variant="secondary" onClick={() => runWalkForward()} disabled={runningWF || runningBacktest}>
+            {runningWF ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : <FlaskConical className="h-4 w-4 mr-2" />}
+            Walk-Forward
+          </Button>
+        </CardContent>
+      </Card>
 
-        {/* ----- TENANTS ----- */}
-        <TabsContent value="tenants" className="mt-4">
-          <div className="rounded-lg border border-strong bg-surface overflow-hidden">
-            <Table>
-              <TableHeader>
-                <TableRow className="border-strong hover:bg-transparent">
-                  <TableHead>Workspace</TableHead>
-                  <TableHead>Usuarios</TableHead>
-                  <TableHead>Plan</TableHead>
-                  <TableHead>Capital</TableHead>
-                  <TableHead>P&L hoy</TableHead>
-                  <TableHead>Estado</TableHead>
-                  <TableHead className="text-right">MRR</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {tenants.map((t) => (
-                  <TableRow key={t.id} className="border-strong hover:bg-surface-2/50">
-                    <TableCell>
-                      <div className="font-medium">{t.name}</div>
-                      <div className="text-xs text-muted-foreground font-mono">id: {t.id} · {t.adminEmail}</div>
-                    </TableCell>
-                    <TableCell className="tabular-nums">{t.users.length} <span className="text-xs text-muted-foreground">/ {t.maxUsers}</span></TableCell>
-                    <TableCell>
-                      <Select value={t.plan} onValueChange={(v) => planMut.mutate({ tenantId: t.id, plan: v as Plan })}>
-                        <SelectTrigger className="w-32 h-8">
-                          <SelectValue><Badge variant="outline" className={planStyle[t.plan]}>{t.plan}</Badge></SelectValue>
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="STARTER">STARTER</SelectItem>
-                          <SelectItem value="PRO">PRO</SelectItem>
-                          <SelectItem value="ENTERPRISE">ENTERPRISE</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </TableCell>
-                    <TableCell className="font-mono tabular-nums text-sm">{formatCurrency(t.stats?.totalCapital ?? 0)}</TableCell>
-                    <TableCell className={`font-mono tabular-nums text-sm ${(t.stats?.totalPnL ?? 0) >= 0 ? "text-success" : "text-destructive"}`}>
-                      {(t.stats?.totalPnL ?? 0) >= 0 ? "+" : ""}{formatCurrency(t.stats?.totalPnL ?? 0)}
-                    </TableCell>
-                    <TableCell>
-                      <button onClick={() => toggleTenantMut.mutate({ tenantId: t.id, active: !t.active })} className="flex items-center gap-2">
-                        <StatusDot active={t.active} variant={t.active ? "success" : "muted"} pulse={t.active} />
-                        <span className="text-sm">{t.active ? "Activo" : "Suspendido"}</span>
-                      </button>
-                    </TableCell>
-                    <TableCell className="text-right font-mono tabular-nums">${PLAN_PRICE[t.plan]}</TableCell>
-                  </TableRow>
+      {/* Backtest result dialog */}
+      <Dialog open={backtestOpen} onOpenChange={setBacktestOpen}>
+        <DialogContent className="max-w-lg">
+          <DialogHeader>
+            <DialogTitle>Resultado del Backtest</DialogTitle>
+            <DlgDesc>{backtestResult?.symbol} · {backtestResult?.timeframe} · {backtestResult?.totalTrades} trades</DlgDesc>
+          </DialogHeader>
+          {backtestResult && (
+            <div className="space-y-3 text-sm">
+              <div className="grid grid-cols-2 gap-2">
+                {[
+                  ["Win Rate", `${((backtestResult.winRate ?? 0) * 100).toFixed(1)}%`],
+                  ["P&L Total", `$${fmt(backtestResult.totalPnl)}`],
+                  ["Profit Factor", fmt(backtestResult.profitFactor)],
+                  ["Max Drawdown", `${fmt(backtestResult.maxDrawdownPct)}%`],
+                  ["Sharpe Ratio", fmt(backtestResult.sharpeRatio)],
+                  ["Trades ganadores", `${backtestResult.winningTrades} / ${backtestResult.totalTrades}`],
+                ].map(([label, value], idx) => (
+                  <div key={label ?? idx} className="flex flex-col rounded border border-strong p-2">
+                    <span className="text-[10px] text-muted-foreground uppercase tracking-wide">{label}</span>
+                    <span className="font-mono font-semibold">{value}</span>
+                  </div>
                 ))}
-              </TableBody>
-            </Table>
-          </div>
-        </TabsContent>
+              </div>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
 
-        {/* ----- USERS (within current admin's tenant) ----- */}
-        <TabsContent value="users" className="mt-4">
-          <div className="rounded-lg border border-strong bg-surface overflow-hidden">
-            <Table>
-              <TableHeader>
-                <TableRow className="border-strong hover:bg-transparent">
-                  <TableHead>Email</TableHead>
-                  <TableHead>Nombre</TableHead>
-                  <TableHead>Rol</TableHead>
-                  <TableHead>Bot</TableHead>
-                  <TableHead>API Keys</TableHead>
-                  <TableHead>Capital</TableHead>
-                  <TableHead className="text-right">Acciones</TableHead>
+      {/* Strategy config (compact) */}
+      {cfg && (
+        <Card className="border-strong bg-surface">
+          <CardHeader className="pb-2">
+            <CardTitle className="text-base">Parámetros activos</CardTitle>
+            <CardDescription>Configuración cargada desde variables de entorno</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="flex flex-wrap gap-2 text-xs font-mono">
+              {[
+                `${cfg.symbol}`, `${cfg.timeframe}`, `RSI(${cfg.rsiLength})`,
+                `SL: ${cfg.stopLossPct}%`, `TP: ${cfg.takeProfitPct}%`,
+                `${cfg.positionSizePct}% pos.`, `${cfg.leverage}x`,
+                cfg.contextEnabled ? "ctx:ON" : "ctx:OFF",
+                cfg.useAtrStop ? `ATR(${cfg.atrPeriod})` : "fixed SL",
+                cfg.binanceTestnet ? "testnet" : "live",
+              ].map((tag) => (
+                <span key={tag} className="rounded bg-muted px-2 py-0.5">{tag}</span>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
+      {/* Signal log */}
+      <Card className="border-strong bg-surface">
+        <CardHeader className="pb-2">
+          <CardTitle className="text-base">Últimas señales</CardTitle>
+          <CardDescription>Señales generadas por la estrategia (máx. 20)</CardDescription>
+        </CardHeader>
+        <CardContent className="p-0">
+          <Table>
+            <TableHeader>
+              <TableRow className="border-strong hover:bg-transparent">
+                <TableHead className="text-xs pl-4">Fecha</TableHead>
+                <TableHead className="text-xs">Señal</TableHead>
+                <TableHead className="text-xs text-right">Precio</TableHead>
+                <TableHead className="text-xs text-right">RSI</TableHead>
+                <TableHead className="text-xs">1h/4h/1d</TableHead>
+                <TableHead className="text-xs">Ejecutada</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {signals.slice(0, 20).map((s: Signal) => (
+                <TableRow key={s.id} className="border-strong hover:bg-surface-2/40">
+                  <TableCell className="text-xs text-muted-foreground pl-4 whitespace-nowrap">{fmtDate(s.generatedAt)}</TableCell>
+                  <TableCell>
+                    <Badge variant="outline" className={cn("font-mono text-[10px]",
+                      s.action === "LONG" ? "border-success/40 text-success"
+                        : s.action === "SHORT" ? "border-destructive/40 text-destructive"
+                          : "border-muted text-muted-foreground")}>
+                      {s.action}
+                    </Badge>
+                  </TableCell>
+                  <TableCell className="text-right font-mono text-xs">${fmt(s.price, 4)}</TableCell>
+                  <TableCell className="text-right font-mono text-xs">{fmt(s.rsi)}</TableCell>
+                  <TableCell className="font-mono text-xs">{s.trend1h ?? "—"}/{s.trend4h ?? "—"}/{s.trend1d ?? "—"}</TableCell>
+                  <TableCell>
+                    <Badge variant="outline" className={cn("text-[10px]", s.executed ? "border-primary/40 text-primary" : "border-muted text-muted-foreground")}>
+                      {s.executed ? "SÍ" : "NO"}
+                    </Badge>
+                  </TableCell>
                 </TableRow>
-              </TableHeader>
-              <TableBody>
-                {myTenantUsers.length === 0 && (
-                  <TableRow><TableCell colSpan={7} className="text-center text-sm text-muted-foreground py-8">Sin usuarios en este tenant</TableCell></TableRow>
-                )}
-                {myTenantUsers.map((u) => (
-                  <TableRow key={u.id} className="border-strong hover:bg-surface-2/50">
-                    <TableCell className="font-medium">{u.email}</TableCell>
-                    <TableCell className="text-sm text-muted-foreground">{u.name ?? "—"}</TableCell>
-                    <TableCell><Badge variant="outline" className="text-[10px]">{u.role}</Badge></TableCell>
-                    <TableCell>
-                      <div className="flex items-center gap-2">
-                        <StatusDot active={u.botActive} variant={u.botActive ? "success" : "muted"} pulse={u.botActive} />
-                        <span className="text-sm">{u.botActive ? "Operando" : "Pausado"}</span>
-                      </div>
-                    </TableCell>
-                    <TableCell>
-                      {u.apiKeysConfigured
-                        ? <Badge className="bg-success/15 text-success border-success/30">OK</Badge>
-                        : <Badge variant="outline" className="border-warning/40 text-warning">Pendiente</Badge>}
-                    </TableCell>
-                    <TableCell className="font-mono tabular-nums text-sm">{formatCurrency(u.capital ?? 0)}</TableCell>
-                    <TableCell className="text-right">
-                      <div className="flex items-center justify-end gap-2">
-                        <Button size="sm" variant="outline" disabled={u.id === me?.id} onClick={() => toggleUserMut.mutate({ userId: u.id, active: !u.active })}>
-                          {u.active ? "Suspender" : "Activar"}
-                        </Button>
-                        <Button size="sm" variant="outline" disabled={u.id === me?.id} className="text-destructive hover:text-destructive" onClick={() => deleteUserMut.mutate(u.id)}>
-                          <Trash2 className="h-3.5 w-3.5" />
-                        </Button>
-                      </div>
-                    </TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          </div>
-        </TabsContent>
-      </Tabs>
+              ))}
+              {signals.length === 0 && (
+                <TableRow>
+                  <TableCell colSpan={6} className="text-center py-8 text-muted-foreground text-sm">Sin señales registradas</TableCell>
+                </TableRow>
+              )}
+            </TableBody>
+          </Table>
+        </CardContent>
+      </Card>
     </div>
   );
 };

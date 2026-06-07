@@ -1,6 +1,7 @@
 // Number / date formatting helpers used across the app.
 
-export const formatCurrency = (value: number, opts?: { compact?: boolean }) => {
+export const formatCurrency = (value: number | undefined | null, opts?: { compact?: boolean }) => {
+  if (value == null) return "—";
   const fmt = new Intl.NumberFormat("en-US", {
     style: "currency",
     currency: "USD",
@@ -11,20 +12,26 @@ export const formatCurrency = (value: number, opts?: { compact?: boolean }) => {
   return fmt.format(value);
 };
 
-export const formatNumber = (value: number, decimals = 2) =>
-  new Intl.NumberFormat("en-US", {
+export const formatNumber = (value: number | undefined | null, decimals = 2) => {
+  if (value == null) return "—";
+  return new Intl.NumberFormat("en-US", {
     minimumFractionDigits: decimals,
     maximumFractionDigits: decimals,
   }).format(value);
+};
 
-export const formatPercent = (value: number, decimals = 2) =>
-  `${value >= 0 ? "+" : ""}${value.toFixed(decimals)}%`;
+export const formatPercent = (value: number | undefined | null, decimals = 2) => {
+  if (value == null) return "—";
+  return `${value >= 0 ? "+" : ""}${value.toFixed(decimals)}%`;
+};
 
-export const formatPrice = (value: number) =>
-  new Intl.NumberFormat("en-US", {
+export const formatPrice = (value: number | undefined | null) => {
+  if (value == null) return "—";
+  return new Intl.NumberFormat("en-US", {
     minimumFractionDigits: 2,
     maximumFractionDigits: 2,
   }).format(value);
+};
 
 export const formatDateTime = (iso: string) => {
   const d = new Date(iso);

@@ -6,10 +6,8 @@ import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { useAuthStore } from "@/store/authStore";
 import { DashboardLayout } from "@/components/templates/DashboardLayout";
-import { RequireAuth, RequireOnboarded, RequireAdmin } from "@/features/auth/RequireAuth";
+import { RequireAuth, RequireAdmin } from "@/features/auth/RequireAuth";
 import Login from "./pages/Login";
-import Register from "./pages/Register";
-import Onboarding from "./pages/Onboarding";
 import Dashboard from "./pages/Dashboard";
 import Trades from "./pages/Trades";
 import Market from "./pages/Market";
@@ -22,7 +20,7 @@ const queryClient = new QueryClient({
 });
 
 const Shell = ({ children }: { children: React.ReactNode }) => (
-  <RequireOnboarded><DashboardLayout>{children}</DashboardLayout></RequireOnboarded>
+  <RequireAuth><DashboardLayout>{children}</DashboardLayout></RequireAuth>
 );
 
 const App = () => {
@@ -36,14 +34,10 @@ const App = () => {
         <Sonner />
         <BrowserRouter>
           <Routes>
-            {/* Public auth pages */}
+            {/* Public */}
             <Route path="/login" element={<Login />} />
-            <Route path="/register" element={<Register />} />
 
-            {/* Authenticated but pre-onboarded */}
-            <Route path="/onboarding" element={<RequireAuth><Onboarding /></RequireAuth>} />
-
-            {/* App (requires onboarding completed) */}
+            {/* App routes */}
             <Route path="/" element={<Shell><Dashboard /></Shell>} />
             <Route path="/trades" element={<Shell><Trades /></Shell>} />
             <Route path="/market" element={<Shell><Market /></Shell>} />

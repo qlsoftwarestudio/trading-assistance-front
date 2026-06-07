@@ -1,302 +1,205 @@
-// Domain types — mirror the QL Trading Bot backend contract (API_DOC_TRADING_BOT.md).
-// `tenantId` and `userId` are numbers in the real API.
-// Keep names aligned with the backend where possible (camelCase JSON).
+// Domain types — aligned with the trading-assistant Spring Boot backend (Phase 1).
+// Phase 2 multi-tenant types are kept as comments at the bottom for future reference.
 
 // ---------- Enums ----------
-export type TradeType = "BUY" | "SELL";
-export type TradeStatus = "OPEN" | "CLOSED" | "CANCELLED";
-export type StrategyKind = "RANGE" | "TREND" | "SCALPING";
-export type ExitReason =
-  | "STOP_LOSS"
-  | "TAKE_PROFIT"
-  | "STRATEGY_SWITCH"
-  | "MANUAL_CLOSE"
-  | "SYSTEM_CLOSE";
-
-export type MarketConditionKind =
-  | "RANGING"
-  | "TREND_UP"
-  | "TREND_DOWN"
-  | "SCALPING_OPPORTUNITY"
-  | "NEUTRAL";
-
-// `FREE` is kept for the local demo experience only — the real backend exposes
-// only STARTER / PRO / ENTERPRISE. The mock surfaces FREE so users can try the
-// app without picking a paid tier; once VITE_API_URL is set, FREE simply
-// disappears from the responses.
-export type Plan = "FREE" | "STARTER" | "PRO" | "ENTERPRISE";
-
+export type TradeAction = "LONG" | "SHORT";
+export type TradeStatus = "OPEN" | "CLOSED";
+export type ExitReason = "STOP_LOSS" | "TAKE_PROFIT" | "MANUAL";
+export type TrendDirection = "UP" | "DOWN" | "SIDEWAYS";
 export type Role = "TRADER" | "ADMIN";
 
-export type NotificationType =
-  | "STRATEGY_SWITCH"
-  | "TRADE_OPENED"
-  | "TRADE_CLOSED"
-  | "DAILY_SUMMARY"
-  | "RISK_ALERT"
-  | "SYSTEM_ALERT";
-
-export type NotificationChannel = "EMAIL" | "TELEGRAM";
-
-// ---------- Plan metadata (used for UI gating + billing display) ----------
-export interface PlanLimits {
-  maxUsers: number;
-  maxCapitalUsd: number; // 0 = unlimited
-  autoSwitch: boolean;
-  multiUser: boolean;
-  prioritySupport: boolean;
-}
-
-export const PLAN_LIMITS: Record<Plan, PlanLimits> = {
+// Kept for Phase 2 compatibility — not used by real backend in Phase 1
+export type Plan = "FREE" | "STARTER" | "PRO" | "ENTERPRISE";
+export const PLAN_PRICE: Record<Plan, number> = { FREE: 0, STARTER: 29, PRO: 79, ENTERPRISE: 199 };
+export const PLAN_LIMITS = {
   FREE:       { maxUsers: 1, maxCapitalUsd: 500,    autoSwitch: false, multiUser: false, prioritySupport: false },
   STARTER:    { maxUsers: 1, maxCapitalUsd: 500,    autoSwitch: false, multiUser: false, prioritySupport: false },
   PRO:        { maxUsers: 1, maxCapitalUsd: 10_000, autoSwitch: true,  multiUser: false, prioritySupport: false },
   ENTERPRISE: { maxUsers: 3, maxCapitalUsd: 0,      autoSwitch: true,  multiUser: true,  prioritySupport: true  },
 };
 
-export const PLAN_PRICE: Record<Plan, number> = {
-  FREE: 0,
-  STARTER: 29,
-  PRO: 79,
-  ENTERPRISE: 199,
-};
-
-// ---------- Trading entities ----------
-export interface Trade {
-  id: number;
-  symbol: string;
-  type: TradeType;
-  status: TradeStatus;
-  entryPrice: number;
-  exitPrice?: number;
-  currentPrice?: number;
-  quantity: number;
-  investedAmount?: number;
-  pnl?: number;
-  pnlPercent?: number;
-  fees?: number;
-  stopLoss?: number;
-  takeProfit?: number;
-  strategyUsed: StrategyKind;
-  marketCondition?: MarketConditionKind;
-  entryTime: string;
-  exitTime?: string;
-  exitReason?: ExitReason;
-  duration?: string;
-  binanceOrderId?: string;
-}
-
-export interface PortfolioSnapshot {
-  totalBalance: number;
-  availableBalance: number;
-  lockedBalance?: number;
-  dailyPnL: number;
-  dailyPnLPercent: number;
-  weeklyPnL: number;
-  weeklyPnLPercent?: number;
-  monthlyPnL: number;
-  monthlyPnLPercent?: number;
-  totalTrades?: number;
-  winningTrades?: number;
-  losingTrades?: number;
-  winRate?: number;
-  averageProfit?: number;
-  averageLoss?: number;
-  profitFactor?: number;
-  openPositions: number;
-  currency?: string;
-  timestamp?: string;
-}
-
-export interface EquityPoint {
-  timestamp: string;
-  balance: number;
-  pnl?: number;
-  /** @deprecated kept for legacy components — mirror of `balance` */
-  value?: number;
-}
-
-// ---------- Market data ----------
-export interface MarketIndicatorSet {
-  adx: number;
-  rsi: number;
-  rsi14?: number;
-  ema9: number;
-  ema21: number;
-  ema50?: number;
-  atr?: number;
-  bollinger?: { upper: number; middle: number; lower: number };
-}
-
-export interface MarketLevels {
-  support: number[];
-  resistance: number[];
-}
-
-export interface MarketCondition {
-  symbol: string;
-  currentPrice: number;
-  priceChange24h: number;
-  priceChangePercent24h?: number;
-  high24h?: number;
-  low24h?: number;
-  volume24h?: number;
-  marketCondition: MarketConditionKind;
-  indicators: MarketIndicatorSet;
-  levels?: MarketLevels;
-  timestamp: string;
-}
-
-export interface Candle {
-  openTime: number;
-  open: number;
-  high: number;
-  low: number;
-  close: number;
-  volume: number;
-  closeTime: number;
-}
-
-// ---------- Configuration ----------
-export interface RiskSettings {
-  maxPositionSizePercent: number;
-  maxDailyLossPercent: number;
-  stopLossPercent: number;
-  takeProfitPercent?: number;
-  maxOpenPositions?: number;
-  trailingStop?: boolean;
-}
-
-export interface StrategyParamsRange {
-  enabled: boolean;
-  rsiPeriod: number;
-  rsiOversold: number;
-  rsiOverbought: number;
-  lookbackPeriod?: number;
-}
-
-export interface StrategyParamsTrend {
-  enabled: boolean;
-  emaFast: number;
-  emaSlow: number;
-  adxThreshold: number;
-}
-
-export interface StrategyParamsScalping {
-  enabled: boolean;
-  rsiPeriod: number;
-  rsiOversold?: number;
-  rsiOverbought?: number;
-  bbPeriod: number;
-  bbDeviation?: number;
-}
-
-export interface NotificationsConfig {
-  emailEnabled?: boolean;
-  telegramEnabled: boolean;
-  telegramChatId?: string;
-  onStrategySwitch?: boolean;
-  onTradeOpen?: boolean;
-  onTradeClose?: boolean;
-  onDailySummary?: boolean;
-  onRiskAlert?: boolean;
-}
-
-export interface ApiKeysStatus {
-  configured: boolean;
-  testnet: boolean;
-  lastValidated?: string;
-}
-
-export interface BotConfig {
-  general: {
-    botActive: boolean;
-    mode: "AUTO_SWITCH" | "MANUAL";
-    selectedStrategy?: StrategyKind;
-    tradingPair: string;
-    testMode: boolean;
-  };
-  risk: RiskSettings;
-  strategies: {
-    range: StrategyParamsRange;
-    trend: StrategyParamsTrend;
-    scalping: StrategyParamsScalping;
-  };
-  notifications: NotificationsConfig;
-  apiKeys: ApiKeysStatus;
-}
-
-// ---------- Tenants & users ----------
-export interface Tenant {
-  id: number;
-  name?: string;
-  adminEmail: string;
-  plan: Plan;
-  maxUsers: number;
-  active: boolean;
-  monthlyFee?: number;
-  nextBillingDate?: string;
-  createdAt: string;
-  lastActivityAt?: string;
-}
-
+// ---------- Core user (simplified for Phase 1 — no tenant required) ----------
 export interface BotUser {
   id: number;
-  tenantId: number | null;
-  tenantName?: string | null;
   email: string;
-  name?: string;
   role: Role;
-  plan: Plan; // mirror of tenant.plan for convenience in the UI
-  botActive: boolean;
-  apiKeysConfigured: boolean;
-  telegramConfigured?: boolean;
-  telegramChatId?: string | null;
-  capital?: number;
-  dailyPnL?: number;
-  totalTrades?: number;
-  winRate?: number;
-  totalPnL?: number;
-  currentStrategy?: StrategyKind | null;
-  tradingPair?: string;
   active: boolean;
-  createdAt?: string;
-  lastActivityAt?: string;
-  lastTradeAt?: string;
-}
-
-export interface AvailableUser {
-  userId: number;
-  email: string;
-  name: string;
-  botActive: boolean;
-  capital: number;
+  // Phase 2 fields (kept as optional for forward compatibility)
+  tenantId?: number | null;
+  tenantName?: string | null;
+  name?: string;
+  plan?: Plan;
 }
 
 export interface AuthResponse {
   token: string;
-  refreshToken?: string;
   email: string;
   role: Role;
-  tenantId: number;
   userId: number;
-  plan: Plan;
-  usersInTenant: number;
-  selectedUserId: number;
-  availableUsers?: AvailableUser[];
-  requiresUserSelection: boolean;
-  telegramConfigured?: boolean;
-  expiresAt: string;
+  // Phase 2 fields
+  tenantId?: number;
+  plan?: Plan;
+  expiresAt?: string;
 }
 
-export interface RegisterResponse {
-  userId: number;
-  tenantId: number;
-  email: string;
-  plan: Plan;
-  message?: string;
-  /** Same shape as login() so the UI can session-in the new user immediately. */
-  auth: AuthResponse;
+// ---------- Trades (mirrors Spring Trade entity) ----------
+export interface Trade {
+  id: number;
+  symbol: string;
+  action: TradeAction;
+  entryPrice: number;
+  exitPrice?: number;
+  quantity: number;
+  investedAmount: number;
+  entryTime: string;   // ISO 8601 without timezone ("2025-06-01T10:15:00")
+  exitTime?: string;
+  stopLoss?: number;
+  takeProfit?: number;
+  pnl?: number;
+  pnlPercent?: number;
+  status: TradeStatus;
+  exitReason?: ExitReason;
+  commission?: number;
+  binanceOrderId?: string;
+  createdAt?: string;
+  updatedAt?: string;
+}
+
+// ---------- Dashboard summary (mirrors /api/dashboard/summary Map response) ----------
+export interface DashboardSummary {
+  balance: number;
+  totalTrades: number;
+  winningTrades: number;
+  losingTrades: number;
+  openTrades: number;
+  winRate: number;       // 0-100
+  totalPnl: number;
+  profitFactor: number;
+  currentPrice: number;
+}
+
+// ---------- Signal (mirrors Spring Signal entity) ----------
+export interface Signal {
+  id: number;
+  symbol: string;
+  action: TradeAction | "HOLD";
+  price: number;
+  rsi?: number;
+  sessionLow?: number;
+  sessionHigh?: number;
+  momentum?: number;
+  inBuyZone?: boolean;
+  inSellZone?: boolean;
+  generatedAt: string;
+  executed?: boolean;
+  tradeId?: number;
+  // Market context
+  trend1h?: TrendDirection;
+  trend4h?: TrendDirection;
+  trend1d?: TrendDirection;
+  relativeVolume?: number;
+  btcCorrelation?: number;
+  btcTrend1d?: TrendDirection;
+  confluence?: boolean;
+  distanceToSupportPct?: number;
+  distanceToResistancePct?: number;
+}
+
+// ---------- Daily metrics (mirrors Spring DailyMetrics entity) ----------
+export interface DailyMetrics {
+  id: number;
+  date: string;           // "2025-06-01"
+  totalTrades: number;
+  winningTrades: number;
+  losingTrades: number;
+  totalPnl: number;
+  winRate?: number;       // 0-100
+  profitFactor?: number;
+  maxDrawdown?: number;
+  createdAt?: string;
+}
+
+// ---------- Strategy config (mirrors /api/admin/config) ----------
+export interface StrategyConfig {
+  symbol: string;
+  timeframe: string;
+  enabled: boolean;
+  rsiLength: number;
+  rsiOversold: number;
+  rsiOverbought: number;
+  lookbackBars: number;
+  killzoneThreshold: number;
+  minMomentum: number;
+  stopLossPct: number;
+  takeProfitPct: number;
+  positionSizePct: number;
+  leverage: number;
+  useAtrStop: boolean;
+  atrPeriod: number;
+  atrMultiplier: number;
+  contextEnabled: boolean;
+  requireConfluence: boolean;
+  requireVolume: boolean;
+  minVolumeRatio?: number;
+  autoAdjust: boolean;
+  telegramEnabled: boolean;
+  binanceTestnet: boolean;
+}
+
+// ---------- Admin health (mirrors /api/admin/health) ----------
+export interface AdminHealth {
+  strategyEnabled: boolean;
+  symbol: string;
+  timeframe: string;
+  openTrades: number;
+  totalTrades: number;
+  lastSignalAt?: string;
+  telegramEnabled: boolean;
+  binanceTestnet: boolean;
+  uptime: string;
+}
+
+// ---------- Strategy status (mirrors /api/strategy/status) ----------
+export interface StrategyStatus {
+  strategy: string;
+  status: string;
+}
+
+// ---------- Backtest ----------
+export interface BacktestTrade {
+  action: TradeAction;
+  entryPrice: number;
+  exitPrice: number;
+  quantity: number;
+  exitReason: ExitReason;
+  entryTimestamp: number;
+  exitTimestamp: number;
+  pnl: number;
+  pnlPercent: number;
+}
+
+export interface BacktestResult {
+  symbol: string;
+  timeframe: string;
+  totalTrades: number;
+  winningTrades: number;
+  losingTrades: number;
+  totalPnl: number;
+  grossProfit: number;
+  grossLoss: number;
+  winRate: number;        // 0.0-1.0
+  profitFactor: number;
+  maxDrawdownPct: number;
+  sharpeRatio: number;
+  trades: BacktestTrade[];
+}
+
+// ---------- Equity curve point ----------
+export interface EquityPoint {
+  timestamp: string;
+  balance: number;
+  pnl?: number;
+  value?: number; // kept for legacy chart components
 }
 
 // ---------- Pagination (Spring Page) ----------
@@ -310,87 +213,15 @@ export interface Page<T> {
   last?: boolean;
 }
 
-// ---------- Statistics ----------
-export interface TradeStatistics {
-  period: { from: string; to: string };
-  totalTrades: number;
-  winningTrades: number;
-  losingTrades: number;
-  winRate: number;
-  totalPnL: number;
-  totalPnLPercent: number;
-  averageWin: number;
-  averageLoss: number;
-  profitFactor: number;
-  maxDrawdown: number;
-  maxDrawdownPercent: number;
-  bestTrade?: { id: number; pnl: number; pnlPercent: number };
-  worstTrade?: { id: number; pnl: number; pnlPercent: number };
-  byStrategy: { strategy: StrategyKind; trades: number; winRate: number; pnl: number }[];
-}
+// =============================================================================
+// PHASE 2 STUBS — Multi-tenant types (not used in Phase 1)
+// Re-enable when the backend implements auth + tenancy.
+// =============================================================================
 
-export interface StrategySwitch {
-  id: number;
-  previousStrategy: StrategyKind;
-  newStrategy: StrategyKind;
-  previousCondition: MarketConditionKind;
-  newCondition: MarketConditionKind;
-  reason: string;
-  portfolioValueAtSwitch: number;
-  tradesClosed: number;
-  notificationSent: boolean;
-  timestamp: string;
-}
-
-// ---------- Admin metrics ----------
-export interface PlatformMetrics {
-  platform: {
-    tenants: { total: number; active: number; byPlan: Record<string, number> };
-    users:   { total: number; byPlan: Record<string, number> };
-    bots:    { total: number; active: number; paused: number };
-  };
-  trading: {
-    totalTrades24h: number;
-    totalVolume24h: number;
-    totalCapitalManaged: number;
-    avgDailyPnL: number;
-    topPerformers: { tenantId: number; userId: number; email: string; dailyPnL: number; winRate: number }[];
-  };
-  system: {
-    apiCalls24h: number;
-    notificationsSent24h: number;
-    webSocketConnections: number;
-    binanceApiCalls24h: number;
-  };
-  revenue: {
-    mrr: number;
-    arr: number;
-    byPlan: Record<string, number>;
-  };
-}
-
-export interface TenantWithUsers extends Tenant {
-  users: {
-    userId: number;
-    email: string;
-    name?: string;
-    role?: Role;
-    botActive: boolean;
-    apiKeysConfigured?: boolean;
-    capital: number;
-    dailyPnL: number;
-    totalTrades?: number;
-    winRate?: number;
-    totalPnL?: number;
-    createdAt?: string;
-    lastActivityAt?: string;
-  }[];
-  stats?: {
-    totalUsers: number;
-    activeBots: number;
-    totalTrades: number;
-    totalPnL: number;
-    totalCapital: number;
-    avgWinRate?: number;
-  };
-}
+// export interface Tenant { id, name, adminEmail, plan, maxUsers, active, ... }
+// export interface TenantWithUsers extends Tenant { users: [...], stats: {...} }
+// export interface AvailableUser { userId, email, name, botActive, capital }
+// export interface PlatformMetrics { platform, trading, system, revenue }
+// export interface StrategySwitch { id, previousStrategy, newStrategy, ... }
+// export type StrategyKind = "RANGE" | "TREND" | "SCALPING";
+// export type MarketConditionKind = "RANGING" | "TREND_UP" | "TREND_DOWN" | ...;

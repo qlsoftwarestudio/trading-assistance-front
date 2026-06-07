@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Link, useLocation, useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -13,8 +13,8 @@ const Login = () => {
   const navigate = useNavigate();
   const location = useLocation() as { state?: { from?: string } };
   const { login, loading } = useAuthStore();
-  const [email, setEmail] = useState(isMockMode ? "admin@ql.studio" : "");
-  const [password, setPassword] = useState(isMockMode ? "demo1234" : "");
+  const [email, setEmail] = useState(isMockMode ? "admin@trading.local" : "");
+  const [password, setPassword] = useState(isMockMode ? "admin123" : "");
 
   const onSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -22,8 +22,7 @@ const Login = () => {
       const auth = await login(email, password);
       toast.success(`Bienvenido, ${auth.email}`);
       const from = location.state?.from;
-      if (!auth.tenantId) navigate("/onboarding", { replace: true });
-      else navigate(from && from !== "/login" ? from : "/", { replace: true });
+      navigate(from && from !== "/login" ? from : "/", { replace: true });
     } catch {
       toast.error("Credenciales inválidas");
     }
@@ -57,14 +56,9 @@ const Login = () => {
               Entrar
             </Button>
 
-            <p className="text-xs text-center text-muted-foreground">
-              ¿No tienes cuenta?{" "}
-              <Link to="/register" className="text-primary hover:underline">Crear cuenta</Link>
-            </p>
-
             {isMockMode && (
               <p className="text-[11px] text-center text-muted-foreground/70">
-                Modo demo · usa <code className="text-primary">admin@ql.studio</code> para entrar como admin
+                Modo demo — credenciales: <code className="text-primary">admin@trading.local</code> / <code className="text-primary">admin123</code>
               </p>
             )}
           </form>

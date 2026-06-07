@@ -11,7 +11,7 @@ interface Props {
 
 export const EquityChart = ({ data, className }: Props) => {
   const chartData = useMemo(
-    () => data.map((p) => ({ time: new Date(p.timestamp).getTime(), value: Math.round(p.value * 100) / 100 })),
+    () => data.map((p) => ({ time: new Date(p.timestamp).getTime(), value: Math.round((p.balance ?? p.value ?? 0) * 100) / 100 })),
     [data],
   );
   const first = chartData[0]?.value ?? 0;

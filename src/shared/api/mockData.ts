@@ -347,8 +347,7 @@ export const mockApi = {
     return { ok: true } as const;
   },
 
-  // -------- Portfolio / trades / market --------
-  async getPortfolio(): Promise<PortfolioSnapshot> { await wait(120); return portfolio; },
+  // -------- Equity / trades / market --------
   async getEquity(): Promise<EquityPoint[]>        { await wait(120); return equityHistory; },
 
   async getTrades(params: { status?: TradeStatus | "ALL"; symbol?: string; strategy?: StrategyKind; page?: number; size?: number } = {}): Promise<Page<Trade>> {

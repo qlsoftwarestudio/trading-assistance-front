@@ -13,7 +13,6 @@ interface Props {
 const statusStyles: Record<Trade["status"], string> = {
   OPEN: "bg-primary/15 text-primary border-primary/30",
   CLOSED: "bg-muted text-muted-foreground border-strong",
-  CANCELLED: "bg-destructive/10 text-destructive border-destructive/30",
 };
 
 export const TradeTable = ({ trades, compact }: Props) => (
@@ -27,7 +26,7 @@ export const TradeTable = ({ trades, compact }: Props) => (
           {!compact && <TableHead className="text-xs uppercase tracking-wider text-muted-foreground text-right">Salida</TableHead>}
           <TableHead className="text-xs uppercase tracking-wider text-muted-foreground text-right">Cantidad</TableHead>
           <TableHead className="text-xs uppercase tracking-wider text-muted-foreground text-right">P&L</TableHead>
-          <TableHead className="text-xs uppercase tracking-wider text-muted-foreground">Estrategia</TableHead>
+          <TableHead className="text-xs uppercase tracking-wider text-muted-foreground">Razón salida</TableHead>
           <TableHead className="text-xs uppercase tracking-wider text-muted-foreground">Estado</TableHead>
           {!compact && <TableHead className="text-xs uppercase tracking-wider text-muted-foreground">Fecha</TableHead>}
         </TableRow>
@@ -46,9 +45,9 @@ export const TradeTable = ({ trades, compact }: Props) => (
             <TableCell>
               <Badge variant="outline" className={cn(
                 "font-mono text-[10px]",
-                t.type === "BUY" ? "border-success/40 text-success" : "border-destructive/40 text-destructive",
+                t.action === "LONG" ? "border-success/40 text-success" : "border-destructive/40 text-destructive",
               )}>
-                {t.type}
+                {t.action}
               </Badge>
             </TableCell>
             <TableCell className="text-right font-mono tabular-nums text-sm">${formatPrice(t.entryPrice)}</TableCell>
@@ -69,7 +68,7 @@ export const TradeTable = ({ trades, compact }: Props) => (
               ) : <span className="text-muted-foreground text-sm">—</span>}
             </TableCell>
             <TableCell className="text-xs">
-              <span className="rounded bg-muted px-1.5 py-0.5 text-muted-foreground">{t.strategyUsed}</span>
+              <span className="rounded bg-muted px-1.5 py-0.5 text-muted-foreground">{t.exitReason ?? "—"}</span>
             </TableCell>
             <TableCell>
               <Badge variant="outline" className={cn("text-[10px] font-medium", statusStyles[t.status])}>
