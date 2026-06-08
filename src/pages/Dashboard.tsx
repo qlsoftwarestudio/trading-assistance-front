@@ -79,7 +79,7 @@ const Dashboard = () => {
 
       <div className="space-y-3">
         <h2 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider">Operaciones recientes</h2>
-        <TradeTable trades={trades?.content ?? []} compact />
+        <TradeTable trades={trades?.content ?? []} compact currentPrice={summary?.currentPrice} />
       </div>
     </div>
   );

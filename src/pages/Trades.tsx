@@ -19,6 +19,12 @@ const Trades = () => {
     queryFn: () => api.getTrades({ status, page, size }),
     refetchInterval: 8000,
   });
+  const { data: summary } = useQuery({
+    queryKey: ["summary"],
+    queryFn: () => api.getDashboardSummary(),
+    refetchInterval: 5_000,
+    enabled: status === "ALL" || status === "OPEN",
+  });
 
   const totalPages = data?.totalPages ?? 1;
   const totalElements = data?.totalElements ?? 0;
@@ -38,7 +44,7 @@ const Trades = () => {
         <span className="text-xs text-muted-foreground ml-auto">{totalElements} resultados</span>
       </div>
 
-      <TradeTable trades={data?.content ?? []} />
+      <TradeTable trades={data?.content ?? []} currentPrice={summary?.currentPrice} />
 
       <div className="flex items-center justify-between">
         <span className="text-xs text-muted-foreground">Página {page + 1} de {totalPages}</span>

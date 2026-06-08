@@ -158,6 +158,7 @@ export const api = {
       return Promise.resolve({ content: slice, totalElements: filtered.length, totalPages: Math.max(1, Math.ceil(filtered.length / size)), size, number: page, first: page === 0, last: true });
     }
     const p: Record<string, unknown> = { page: params.page ?? 0, size: params.size ?? 20 };
+    if (params.status && params.status !== "ALL") p.status = params.status;
     return get<Page<Trade>>("/dashboard/trades", p);
   },
 

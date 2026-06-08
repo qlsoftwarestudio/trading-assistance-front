@@ -36,7 +36,7 @@ export const TopNav = () => {
         <SidebarTrigger />
         <div className="hidden md:flex items-center gap-2 min-w-0">
           <span className="text-sm font-medium truncate">{user?.tenantName ?? "Trading Bot"}</span>
-          {user && <Badge variant="outline" className="border-primary/40 text-primary text-[10px]">{user.plan}</Badge>}
+          {user?.plan && <Badge variant="outline" className="border-primary/40 text-primary text-[10px]">{user.plan}</Badge>}
           {isMockMode && <Badge variant="outline" className="border-warning/40 text-warning text-[10px]">DEMO</Badge>}
         </div>
       </div>

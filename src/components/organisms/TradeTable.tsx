@@ -8,6 +8,7 @@ import { cn } from "@/lib/utils";
 interface Props {
   trades: Trade[];
   compact?: boolean;
+  currentPrice?: number;
 }
 
 const statusStyles: Record<Trade["status"], string> = {
@@ -15,7 +16,8 @@ const statusStyles: Record<Trade["status"], string> = {
   CLOSED: "bg-muted text-muted-foreground border-strong",
 };
 
-export const TradeTable = ({ trades, compact }: Props) => (
+export const TradeTable = ({ trades, compact, currentPrice }: Props) => {
+  return (
   <div className="rounded-lg border border-strong bg-surface overflow-hidden">
     <Table>
       <TableHeader>
@@ -58,14 +60,33 @@ export const TradeTable = ({ trades, compact }: Props) => (
             )}
             <TableCell className="text-right font-mono tabular-nums text-sm">{formatNumber(t.quantity, 4)}</TableCell>
             <TableCell className="text-right">
-              {t.pnl !== undefined && t.pnlPercent !== undefined ? (
-                <div className="flex flex-col items-end gap-0.5">
-                  <span className={cn("font-mono tabular-nums text-sm font-semibold", t.pnl >= 0 ? "text-success" : "text-destructive")}>
-                    {t.pnl >= 0 ? "+" : ""}${formatNumber(Math.abs(t.pnl))}
-                  </span>
-                  <PnLBadge value={t.pnlPercent} showIcon={false} />
-                </div>
-              ) : <span className="text-muted-foreground text-sm">—</span>}
+              {(() => {
+                const closedPnl = t.pnl !== undefined && t.pnlPercent !== undefined;
+                const unrealized = !closedPnl && t.status === "OPEN" && currentPrice !== undefined
+                  ? (t.action === "LONG" ? currentPrice - t.entryPrice : t.entryPrice - currentPrice) * t.quantity
+                  : undefined;
+                const unrealizedPct = unrealized !== undefined && t.investedAmount
+                  ? (unrealized / t.investedAmount) * 100
+                  : undefined;
+                if (closedPnl) return (
+                  <div className="flex flex-col items-end gap-0.5">
+                    <span className={cn("font-mono tabular-nums text-sm font-semibold", t.pnl! >= 0 ? "text-success" : "text-destructive")}>
+                      {t.pnl! >= 0 ? "+" : ""}${formatNumber(Math.abs(t.pnl!))}
+                    </span>
+                    <PnLBadge value={t.pnlPercent} showIcon={false} />
+                  </div>
+                );
+                if (unrealized !== undefined) return (
+                  <div className="flex flex-col items-end gap-0.5">
+                    <span className={cn("font-mono tabular-nums text-sm font-semibold", unrealized >= 0 ? "text-success" : "text-destructive")}>
+                      {unrealized >= 0 ? "+" : ""}${formatNumber(Math.abs(unrealized))}
+                    </span>
+                    {unrealizedPct !== undefined && <PnLBadge value={unrealizedPct} showIcon={false} />}
+                    <span className="text-[10px] text-muted-foreground">no realizado</span>
+                  </div>
+                );
+                return <span className="text-muted-foreground text-sm">—</span>;
+              })()}
             </TableCell>
             <TableCell className="text-xs">
               <span className="rounded bg-muted px-1.5 py-0.5 text-muted-foreground">{t.exitReason ?? "—"}</span>
@@ -83,4 +104,5 @@ export const TradeTable = ({ trades, compact }: Props) => (
       </TableBody>
     </Table>
   </div>
-);
+  );
+};
