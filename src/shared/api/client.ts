@@ -145,7 +145,7 @@ export const api = {
     isMockMode ? Promise.resolve(mockSummary) : get<DashboardSummary>("/dashboard/summary"),
 
   getEquity: (): Promise<EquityPoint[]> =>
-    isMockMode ? Promise.resolve(mockEquity) : Promise.resolve(mockEquity),
+    isMockMode ? Promise.resolve(mockEquity) : get<EquityPoint[]>("/dashboard/equity").catch(() => []),
 
   getTrades: (params: TradesQuery = {}): Promise<Page<Trade>> => {
     if (isMockMode) {
