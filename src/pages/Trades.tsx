@@ -9,25 +9,28 @@ import type { TradeStatus } from "@/shared/types";
 
 const STATUSES: (TradeStatus | "ALL")[] = ["ALL", "OPEN", "CLOSED"];
 
+const PAGE_SIZE = 10;
+
 const Trades = () => {
   const [status, setStatus] = useState<TradeStatus | "ALL">("ALL");
-  const [page, setPage] = useState(0); // 0-based to match Spring Page
-  const size = 10;
+  const [page, setPage] = useState(0);
 
-  const { data } = useQuery({
-    queryKey: ["trades", status, page],
-    queryFn: () => api.getTrades({ status, page, size }),
-    refetchInterval: 8000,
+  const { data: rawData } = useQuery({
+    queryKey: ["trades-all"],
+    queryFn: () => api.getTrades({ page: 0, size: 200 }),
+    refetchInterval: 8_000,
   });
   const { data: summary } = useQuery({
-    queryKey: ["summary"],
+    queryKey: ["dashboard-summary"],
     queryFn: () => api.getDashboardSummary(),
     refetchInterval: 5_000,
-    enabled: status === "ALL" || status === "OPEN",
   });
 
-  const totalPages = data?.totalPages ?? 1;
-  const totalElements = data?.totalElements ?? 0;
+  const allTrades = rawData?.content ?? [];
+  const filtered = status === "ALL" ? allTrades : allTrades.filter((t) => t.status === status);
+  const totalElements = filtered.length;
+  const totalPages = Math.max(1, Math.ceil(totalElements / PAGE_SIZE));
+  const paginated = filtered.slice(page * PAGE_SIZE, (page + 1) * PAGE_SIZE);
 
   return (
     <div className="space-y-5 max-w-[1400px] mx-auto">
@@ -44,7 +47,7 @@ const Trades = () => {
         <span className="text-xs text-muted-foreground ml-auto">{totalElements} resultados</span>
       </div>
 
-      <TradeTable trades={data?.content ?? []} currentPrice={summary?.currentPrice} />
+      <TradeTable trades={paginated} currentPrice={summary?.currentPrice} />
 
       <div className="flex items-center justify-between">
         <span className="text-xs text-muted-foreground">Página {page + 1} de {totalPages}</span>
