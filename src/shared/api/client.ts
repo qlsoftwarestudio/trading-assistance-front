@@ -94,6 +94,7 @@ const mockConfig: StrategyConfig = {
   minMomentum: 0.3, stopLossPct: 2.0, takeProfitPct: 4.0, positionSizePct: 20.0,
   leverage: 5, useAtrStop: false, atrPeriod: 14, atrMultiplier: 2.0,
   contextEnabled: true, requireConfluence: false, requireVolume: true, minVolumeRatio: 1.0,
+  trailingStopPct: 0.6, useVwapFilter: true,
   autoAdjust: false, telegramEnabled: false, binanceTestnet: true,
 };
 

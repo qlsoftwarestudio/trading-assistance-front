@@ -184,6 +184,8 @@ const Admin = () => {
                 `${cfg.positionSizePct}% pos.`, `${cfg.leverage}x`,
                 cfg.contextEnabled ? "ctx:ON" : "ctx:OFF",
                 cfg.useAtrStop ? `ATR(${cfg.atrPeriod})` : "fixed SL",
+                `TS: ${cfg.trailingStopPct}%`,
+                cfg.useVwapFilter ? "VWAP:ON" : "VWAP:OFF",
                 cfg.binanceTestnet ? "testnet" : "live",
               ].map((tag) => (
                 <span key={tag} className="rounded bg-muted px-2 py-0.5">{tag}</span>

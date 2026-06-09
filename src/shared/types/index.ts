@@ -141,6 +141,8 @@ export interface StrategyConfig {
   requireConfluence: boolean;
   requireVolume: boolean;
   minVolumeRatio?: number;
+  trailingStopPct: number;
+  useVwapFilter: boolean;
   autoAdjust: boolean;
   telegramEnabled: boolean;
   binanceTestnet: boolean;
