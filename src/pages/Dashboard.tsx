@@ -1,7 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { api } from "@/shared/api/client";
 import { PortfolioCard } from "@/components/molecules/PortfolioCard";
-import { EquityChart } from "@/components/organisms/EquityChart";
+import { TradePerformanceCard } from "@/components/organisms/TradePerformanceCard";
 import { TradeTable } from "@/components/organisms/TradeTable";
 import { Wallet, TrendingUp, Activity, BarChart2 } from "lucide-react";
 import { formatCurrency, formatNumber } from "@/shared/lib/format";
@@ -12,8 +12,7 @@ import { useAuthStore } from "@/store/authStore";
 const Dashboard = () => {
   const user = useAuthStore((s) => s.user);
   const { data: summary } = useQuery({ queryKey: ["summary"], queryFn: () => api.getDashboardSummary(), refetchInterval: 5_000 });
-  const { data: equity = [] } = useQuery({ queryKey: ["equity"], queryFn: () => api.getEquity(), refetchInterval: 30_000 });
-  const { data: trades } = useQuery({ queryKey: ["trades", "recent"], queryFn: () => api.getTrades({ size: 6, page: 0 }) });
+  const { data: trades } = useQuery({ queryKey: ["trades", "recent"], queryFn: () => api.getTrades({ size: 20, page: 0 }), refetchInterval: 8_000 });
   const { data: status } = useQuery({ queryKey: ["strategy-status"], queryFn: () => api.getStrategyStatus(), refetchInterval: 30_000 });
 
   return (
@@ -66,7 +65,7 @@ const Dashboard = () => {
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-5">
-        <EquityChart data={equity} className="lg:col-span-2" />
+        <TradePerformanceCard trades={trades?.content ?? []} currentPrice={summary?.currentPrice} className="lg:col-span-2" />
         <Card className="border-strong bg-surface">
           <CardHeader className="pb-2">
             <CardTitle className="text-sm font-medium">Configuración activa</CardTitle>

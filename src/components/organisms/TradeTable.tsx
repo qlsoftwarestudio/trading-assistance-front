@@ -61,7 +61,7 @@ export const TradeTable = ({ trades, compact, currentPrice }: Props) => {
             <TableCell className="text-right font-mono tabular-nums text-sm">{formatNumber(t.quantity, 4)}</TableCell>
             <TableCell className="text-right">
               {(() => {
-                const closedPnl = t.pnl !== undefined && t.pnlPercent !== undefined;
+                const closedPnl = t.pnl != null && t.pnlPercent != null;
                 const unrealized = !closedPnl && t.status === "OPEN" && currentPrice !== undefined
                   ? (t.action === "LONG" ? currentPrice - t.entryPrice : t.entryPrice - currentPrice) * t.quantity
                   : undefined;
