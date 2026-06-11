@@ -12,7 +12,7 @@ interface Props {
 
 export const TradePerformanceCard = ({ trades, currentPrice, className }: Props) => {
   const closed = useMemo(
-    () => trades.filter((t) => t.status === "CLOSED" && t.pnl != null).slice(-20),
+    () => trades.filter((t) => t.status === "CLOSED" && t.pnl != null).slice(0, 20),
     [trades],
   );
   const open = useMemo(() => trades.filter((t) => t.status === "OPEN"), [trades]);
@@ -35,7 +35,7 @@ export const TradePerformanceCard = ({ trades, currentPrice, className }: Props)
   const avgPnl = closed.length ? closed.reduce((s, t) => s + t.pnl!, 0) / closed.length : null;
 
   let streak = 0;
-  for (let i = closed.length - 1; i >= 0; i--) {
+  for (let i = 0; i < closed.length; i++) {
     const p = closed[i].pnl!;
     if (streak === 0) { streak = p >= 0 ? 1 : -1; }
     else if (streak > 0 && p >= 0) { streak++; }
