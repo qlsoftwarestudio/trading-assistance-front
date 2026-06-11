@@ -16,6 +16,14 @@ const statusStyles: Record<Trade["status"], string> = {
   CLOSED: "bg-muted text-muted-foreground border-strong",
 };
 
+const exitReasonStyles: Record<string, string> = {
+  STOP_LOSS: "bg-destructive/10 text-destructive border-destructive/20",
+  TAKE_PROFIT: "bg-success/10 text-success border-success/20",
+  TRAILING_STOP: "bg-orange-500/10 text-orange-500 border-orange-500/20",
+  TIME_EXIT: "bg-muted text-muted-foreground border-strong",
+  MANUAL: "bg-primary/10 text-primary border-primary/20",
+};
+
 export const TradeTable = ({ trades, compact, currentPrice }: Props) => {
   return (
   <div className="rounded-lg border border-strong bg-surface overflow-hidden">
@@ -89,7 +97,9 @@ export const TradeTable = ({ trades, compact, currentPrice }: Props) => {
               })()}
             </TableCell>
             <TableCell className="text-xs">
-              <span className="rounded bg-muted px-1.5 py-0.5 text-muted-foreground">{t.exitReason ?? "—"}</span>
+              <span className={cn("rounded border px-1.5 py-0.5 text-[10px] font-medium", exitReasonStyles[t.exitReason ?? ""] ?? "bg-muted text-muted-foreground border-strong")}>
+                {t.exitReason ?? "—"}
+              </span>
             </TableCell>
             <TableCell>
               <Badge variant="outline" className={cn("text-[10px] font-medium", statusStyles[t.status])}>
