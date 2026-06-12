@@ -13,6 +13,9 @@ import Trades from "./pages/Trades";
 import Market from "./pages/Market";
 import Config from "./pages/Config";
 import Admin from "./pages/Admin";
+import AcademyPage from "./pages/AcademyPage";
+import LessonPage from "./pages/LessonPage";
+import ProgressPage from "./pages/ProgressPage";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient({
@@ -42,6 +45,9 @@ const App = () => {
             <Route path="/trades" element={<Shell><Trades /></Shell>} />
             <Route path="/market" element={<Shell><Market /></Shell>} />
             <Route path="/config" element={<Shell><Config /></Shell>} />
+            <Route path="/academy" element={<Shell><AcademyPage /></Shell>} />
+            <Route path="/academy/progress" element={<Shell><ProgressPage /></Shell>} />
+            <Route path="/academy/lesson/:levelId/:lessonId" element={<Shell><LessonPage /></Shell>} />
 
             {/* Admin only */}
             <Route path="/admin" element={<RequireAdmin><DashboardLayout><Admin /></DashboardLayout></RequireAdmin>} />

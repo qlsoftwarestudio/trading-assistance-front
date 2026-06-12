@@ -43,6 +43,7 @@ export const TradePerformanceCard = ({ trades, currentPrice, className }: Props)
     else break;
   }
 
+
   return (
     <Card className={`border-strong bg-surface ${className ?? ""}`}>
       <CardHeader className="pb-2 flex flex-row items-start justify-between">
