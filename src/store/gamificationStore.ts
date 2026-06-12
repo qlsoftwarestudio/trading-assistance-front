@@ -242,13 +242,13 @@ export const useGamificationStore = create<GamificationState>()(
         }
 
         // "observador" — 5 minutes (300s) on dashboard
-        if (state.dashboardSeconds >= 10) {
+        if (state.dashboardSeconds >= 300) {
           const ach = achievementsList.find((a) => a.id === "observador");
           if (ach) get().unlockAchievement(ach);
         }
 
         // "risk-manager" — used calculator 5 times
-        if (state.calculatorUses >= 2) {
+        if (state.calculatorUses >= 5) {
           const ach = achievementsList.find((a) => a.id === "risk-manager");
           if (ach) get().unlockAchievement(ach);
         }
