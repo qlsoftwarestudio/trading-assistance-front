@@ -31,6 +31,8 @@ interface GamificationState {
   lastVisitDate: string;
   levels: LevelProgress[];
   achievements: Achievement[];
+  dashboardSeconds: number;
+  calculatorUses: number;
   // Actions
   addXp: (amount: number) => void;
   completeLesson: (levelId: string, lessonId: string, quizScore?: number) => void;
@@ -41,6 +43,8 @@ interface GamificationState {
   getProgressPercent: () => number;
   checkAndUpdateStreak: () => void;
   checkAchievements: () => void;
+  addDashboardSeconds: (seconds: number) => void;
+  useCalculator: () => void;
 }
 
 const LEVEL_THRESHOLDS: { level: UserLevel; threshold: number }[] = [
@@ -61,6 +65,8 @@ export const useGamificationStore = create<GamificationState>()(
       lastVisitDate: "",
       levels: [],
       achievements: [],
+      dashboardSeconds: 0,
+      calculatorUses: 0,
 
       addXp: (amount: number) => {
         set((state) => ({ xp: state.xp + amount }));
@@ -175,6 +181,14 @@ export const useGamificationStore = create<GamificationState>()(
         }));
       },
 
+      addDashboardSeconds: (seconds: number) => {
+        set((prev) => ({ dashboardSeconds: prev.dashboardSeconds + seconds }));
+      },
+
+      useCalculator: () => {
+        set((prev) => ({ calculatorUses: prev.calculatorUses + 1 }));
+      },
+
       checkAchievements: () => {
         const state = get();
 
@@ -222,6 +236,18 @@ export const useGamificationStore = create<GamificationState>()(
             const ach = achievementsList.find((a) => a.id === "indicador");
             if (ach) get().unlockAchievement(ach);
           }
+        }
+
+        // "observador" — 5 minutes (300s) on dashboard
+        if (state.dashboardSeconds >= 10) {
+          const ach = achievementsList.find((a) => a.id === "observador");
+          if (ach) get().unlockAchievement(ach);
+        }
+
+        // "risk-manager" — used calculator 5 times
+        if (state.calculatorUses >= 2) {
+          const ach = achievementsList.find((a) => a.id === "risk-manager");
+          if (ach) get().unlockAchievement(ach);
         }
       },
     }),

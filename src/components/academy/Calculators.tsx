@@ -1,7 +1,8 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { useGamificationStore } from "@/store/gamificationStore";
 
 export function RRCalculator() {
   const [entry, setEntry] = useState("100");
@@ -57,6 +58,15 @@ export function PositionSizingCalculator() {
   const [riskPct, setRiskPct] = useState("1");
   const [slPct, setSlPct] = useState("0.6");
   const [leverage, setLeverage] = useState("5");
+
+  const { useCalculator, checkAchievements } = useGamificationStore();
+
+  useEffect(() => {
+    useCalculator();
+    checkAchievements();
+    // solo cuenta una vez por mount de la calculadora
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const c = parseFloat(capital) || 0;
   const risk = c * (parseFloat(riskPct) / 100);

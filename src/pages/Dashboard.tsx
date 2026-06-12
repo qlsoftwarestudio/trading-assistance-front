@@ -1,4 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
+import { useEffect } from "react";
 import { api } from "@/shared/api/client";
 import { PortfolioCard } from "@/components/molecules/PortfolioCard";
 import { TradePerformanceCard } from "@/components/organisms/TradePerformanceCard";
@@ -8,12 +9,23 @@ import { formatCurrency, formatNumber } from "@/shared/lib/format";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { useAuthStore } from "@/store/authStore";
+import { useGamificationStore } from "@/store/gamificationStore";
 
 const Dashboard = () => {
   const user = useAuthStore((s) => s.user);
   const { data: summary } = useQuery({ queryKey: ["summary"], queryFn: () => api.getDashboardSummary(), refetchInterval: 5_000 });
   const { data: trades } = useQuery({ queryKey: ["trades", "recent"], queryFn: () => api.getTrades({ size: 20, page: 0 }), refetchInterval: 8_000 });
   const { data: status } = useQuery({ queryKey: ["strategy-status"], queryFn: () => api.getStrategyStatus(), refetchInterval: 30_000 });
+
+  const { addDashboardSeconds, checkAchievements } = useGamificationStore();
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      addDashboardSeconds(5);
+      checkAchievements();
+    }, 5000);
+    return () => clearInterval(interval);
+  }, [addDashboardSeconds, checkAchievements]);
 
   return (
     <div className="space-y-5 max-w-[1400px] mx-auto">
