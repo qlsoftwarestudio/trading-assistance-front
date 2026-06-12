@@ -33,6 +33,7 @@ interface GamificationState {
   achievements: Achievement[];
   dashboardSeconds: number;
   calculatorUses: number;
+  lastUnlockedId: string | null;
   // Actions
   addXp: (amount: number) => void;
   completeLesson: (levelId: string, lessonId: string, quizScore?: number) => void;
@@ -67,6 +68,7 @@ export const useGamificationStore = create<GamificationState>()(
       achievements: [],
       dashboardSeconds: 0,
       calculatorUses: 0,
+      lastUnlockedId: null,
 
       addXp: (amount: number) => {
         set((state) => ({ xp: state.xp + amount }));
@@ -134,6 +136,7 @@ export const useGamificationStore = create<GamificationState>()(
         set((prev) => ({
           achievements: [...prev.achievements, { ...achievement, unlockedAt: new Date().toISOString() }],
           xp: prev.xp + 200,
+          lastUnlockedId: achievement.id,
         }));
       },
 

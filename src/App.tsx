@@ -5,6 +5,7 @@ import { Toaster as Sonner } from "@/components/ui/sonner";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { useAuthStore } from "@/store/authStore";
+import { useAchievementToasts } from "@/hooks/useAchievementToasts";
 import { DashboardLayout } from "@/components/templates/DashboardLayout";
 import { RequireAuth, RequireAdmin } from "@/features/auth/RequireAuth";
 import Login from "./pages/Login";
@@ -29,6 +30,7 @@ const Shell = ({ children }: { children: React.ReactNode }) => (
 const App = () => {
   const hydrate = useAuthStore((s) => s.hydrate);
   useEffect(() => { hydrate(); }, [hydrate]);
+  useAchievementToasts();
 
   return (
     <QueryClientProvider client={queryClient}>
