@@ -48,16 +48,33 @@ export default function LessonPage() {
     }
 
     // Achievements
-    if (level.number === 0) {
+    // "primeros-pasos" — level 0 fully completed
+    if (level.number === 0 && allCompleted) {
       const ach = achievementsList.find((a) => a.id === "primeros-pasos");
       if (ach) unlockAchievement(ach);
     }
+    // "mente-fria" — level 5 completed
     if (level.number === 5 && allCompleted) {
       const ach = achievementsList.find((a) => a.id === "mente-fria");
       if (ach) unlockAchievement(ach);
     }
-    if (perfect && level.id === "indicadores") {
+    // "analista" — level 1 completed with avg >= 80%
+    if (level.number === 1 && allCompleted && updatedLevel) {
+      const scores = updatedLevel.lessons.map((l) => l.quizScore ?? 0);
+      const avg = scores.length > 0 ? scores.reduce((a, b) => a + b, 0) / scores.length : 0;
+      if (avg >= 80) {
+        const ach = achievementsList.find((a) => a.id === "analista");
+        if (ach) unlockAchievement(ach);
+      }
+    }
+    // "indicador" — RSI lesson (l2-rsi) quiz perfect
+    if (perfect && lessonId === "l2-rsi") {
       const ach = achievementsList.find((a) => a.id === "indicador");
+      if (ach) unlockAchievement(ach);
+    }
+    // "perfecto" — any level completed with all quizzes perfect
+    if (allCompleted && updatedLevel?.lessons.every((l) => l.quizPerfect)) {
+      const ach = achievementsList.find((a) => a.id === "perfecto");
       if (ach) unlockAchievement(ach);
     }
   };

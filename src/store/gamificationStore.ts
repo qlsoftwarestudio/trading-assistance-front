@@ -1,5 +1,6 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
+import { levels, achievementsList } from "@/data/academyContent";
 
 export type UserLevel = "Novato" | "Aprendiz" | "Analista" | "Estratega" | "Master Trader";
 
@@ -39,6 +40,7 @@ interface GamificationState {
   getXpToNextLevel: () => number;
   getProgressPercent: () => number;
   checkAndUpdateStreak: () => void;
+  checkAchievements: () => void;
 }
 
 const LEVEL_THRESHOLDS: { level: UserLevel; threshold: number }[] = [
@@ -171,6 +173,56 @@ export const useGamificationStore = create<GamificationState>()(
           streak: newStreak,
           xp: prev.xp + streakBonus,
         }));
+      },
+
+      checkAchievements: () => {
+        const state = get();
+
+        for (const levelProgress of state.levels) {
+          if (!levelProgress.completedAt) continue;
+
+          const levelData = levels.find((l) => l.id === levelProgress.levelId);
+          if (!levelData) continue;
+
+          // "primeros-pasos" — level 0 completed
+          if (levelData.number === 0) {
+            const ach = achievementsList.find((a) => a.id === "primeros-pasos");
+            if (ach) get().unlockAchievement(ach);
+          }
+
+          // "analista" — level 1 completed with avg >= 80%
+          if (levelData.number === 1) {
+            const scores = levelProgress.lessons.map((l) => l.quizScore ?? 0);
+            const avg = scores.length > 0 ? scores.reduce((a, b) => a + b, 0) / scores.length : 0;
+            if (avg >= 80) {
+              const ach = achievementsList.find((a) => a.id === "analista");
+              if (ach) get().unlockAchievement(ach);
+            }
+          }
+
+          // "mente-fria" — level 5 completed
+          if (levelData.number === 5) {
+            const ach = achievementsList.find((a) => a.id === "mente-fria");
+            if (ach) get().unlockAchievement(ach);
+          }
+
+          // "perfecto" — any level completed with all quizzes perfect
+          const allPerfect = levelProgress.lessons.every((l) => l.quizPerfect);
+          if (allPerfect) {
+            const ach = achievementsList.find((a) => a.id === "perfecto");
+            if (ach) get().unlockAchievement(ach);
+          }
+        }
+
+        // "indicador" — RSI lesson perfect in nivel 2
+        const indicatorsLevel = state.levels.find((l) => l.levelId === "indicadores");
+        if (indicatorsLevel) {
+          const rsiLesson = indicatorsLevel.lessons.find((l) => l.lessonId === "l2-rsi");
+          if (rsiLesson?.quizPerfect) {
+            const ach = achievementsList.find((a) => a.id === "indicador");
+            if (ach) get().unlockAchievement(ach);
+          }
+        }
       },
     }),
     { name: "trading-academy-gamification" }

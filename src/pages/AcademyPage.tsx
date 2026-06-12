@@ -10,11 +10,12 @@ import { BookOpen, Trophy, TrendingUp, Flame } from "lucide-react";
 
 export default function AcademyPage() {
   const navigate = useNavigate();
-  const { xp, streak, levels: progressLevels, checkAndUpdateStreak, getUserLevel, getXpToNextLevel, getProgressPercent } = useGamificationStore();
+  const { xp, streak, levels: progressLevels, checkAndUpdateStreak, checkAchievements, getUserLevel, getXpToNextLevel, getProgressPercent } = useGamificationStore();
 
   useEffect(() => {
     checkAndUpdateStreak();
-  }, [checkAndUpdateStreak]);
+    checkAchievements();
+  }, [checkAndUpdateStreak, checkAchievements]);
 
   const userLevel = getUserLevel();
   const xpToNext = getXpToNextLevel();
