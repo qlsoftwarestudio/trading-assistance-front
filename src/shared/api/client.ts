@@ -110,6 +110,13 @@ const mockMetrics: DailyMetrics = {
   profitFactor: 2.4, maxDrawdown: 3.2,
 };
 
+const mockMetricsHistory: DailyMetrics[] = [
+  { id: 8,  date: "2026-06-14", totalTrades: 4,  winningTrades: 3,  losingTrades: 1,  totalPnl: 24.54,  winRate: 75.00, profitFactor: 18.56, maxDrawdown: 0 },
+  { id: 9,  date: "2026-06-15", totalTrades: 17, winningTrades: 10, losingTrades: 7,  totalPnl: 34.49,  winRate: 58.82, profitFactor: 2.43,  maxDrawdown: 0 },
+  { id: 10, date: "2026-06-16", totalTrades: 23, winningTrades: 14, losingTrades: 9,  totalPnl: 63.58,  winRate: 60.87, profitFactor: 2.85,  maxDrawdown: 0 },
+  { id: 11, date: "2026-06-17", totalTrades: 33, winningTrades: 21, losingTrades: 12, totalPnl: 126.05, winRate: 63.64, profitFactor: 4.28,  maxDrawdown: 0 },
+];
+
 const mockEquity: EquityPoint[] = Array.from({ length: 24 }, (_, i) => ({
   timestamp: new Date(NOW - (23 - i) * 3_600_000).toISOString(),
   balance: 1150 + i * 3.5 + (Math.random() - 0.4) * 15,
@@ -173,6 +180,9 @@ export const api = {
 
   getDailyMetrics: (): Promise<DailyMetrics | null> =>
     isMockMode ? Promise.resolve(mockMetrics) : get<DailyMetrics>("/dashboard/metrics").catch(() => null),
+
+  getAllDailyMetrics: (): Promise<DailyMetrics[]> =>
+    isMockMode ? Promise.resolve(mockMetricsHistory) : get<DailyMetrics[]>("/dashboard/metrics/history").catch(() => []),
 
   // -------- Strategy --------
   getStrategyStatus: (): Promise<StrategyStatus> =>
