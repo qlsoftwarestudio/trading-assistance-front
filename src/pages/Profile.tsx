@@ -9,14 +9,14 @@ import { Badge } from "@/components/ui/badge";
 import { Power, Trash2, Plus, Bot } from "lucide-react";
 import { useAuthStore } from "@/store/authStore";
 
-const SYMBOLS = ["HYPEUSDT", "SOLUSDT", "BTCUSDT", "ETHUSDT"];
+const SYMBOLS = ["HYPEUSDT", "SOLUSDT"];
 
 const Profile = () => {
   const user = useAuthStore((s) => s.user);
   const queryClient = useQueryClient();
   const [newBot, setNewBot] = useState({ name: "", symbol: "HYPEUSDT", apiKey: "", apiSecret: "" });
 
-  const { data: bots, isLoading: botsLoading, error: botsError } = useQuery({ queryKey: ["bots"], queryFn: () => api.getBots(), refetchInterval: 10_000 });
+  const { data: bots, isLoading: botsLoading, error: botsError } = useQuery({ queryKey: ["bots"], queryFn: () => api.getBots(), refetchInterval: 30_000 });
 
   const createBot = useMutation({
     mutationFn: api.createBot,
