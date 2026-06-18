@@ -190,10 +190,10 @@ export const api = {
     isMockMode ? Promise.resolve(mockMetricsHistory) : get<DailyMetrics[]>("/dashboard/metrics/history").catch(() => []),
 
   // -------- Bots --------
-  getBots: (): Promise<Array<{ id: number; name: string; symbol: string; enabled: boolean; running: boolean; maxCapitalUsd: number }>> =>
-    get<Array<{ id: number; name: string; symbol: string; enabled: boolean; running: boolean; maxCapitalUsd: number }>>("/bots"),
+  getBots: (): Promise<Array<{ id: number; name: string; symbol: string; enabled: boolean; running: boolean }>> =>
+    get<Array<{ id: number; name: string; symbol: string; enabled: boolean; running: boolean }>>("/bots"),
 
-  createBot: (data: { name: string; symbol: string; apiKey: string; apiSecret: string; maxCapitalUsd?: number }): Promise<{ id: number; message: string }> =>
+  createBot: (data: { name: string; symbol: string; apiKey: string; apiSecret: string }): Promise<{ id: number; message: string }> =>
     post<{ id: number; message: string }>("/bots", data),
 
   toggleBot: (id: number): Promise<{ id: number; running: boolean; message: string }> =>

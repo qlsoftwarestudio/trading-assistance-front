@@ -37,7 +37,6 @@ const PlanCard = ({ plan, selected, onSelect }: { plan: Plan; selected: boolean;
       </div>
       <ul className="space-y-1.5 text-sm text-muted-foreground">
         <li>· {limits.maxUsers === 1 ? "1 bot (usuario)" : `Hasta ${limits.maxUsers} bots`}</li>
-        <li>· {limits.maxCapitalUsd === 0 ? "Capital ilimitado" : `Capital máx. $${limits.maxCapitalUsd.toLocaleString()}`}</li>
         <li>· {limits.autoSwitch ? "Auto-Switch on" : "Modo manual"}</li>
         <li>· {limits.prioritySupport ? "Soporte prioritario" : "Soporte estándar"}</li>
       </ul>

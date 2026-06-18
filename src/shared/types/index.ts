@@ -12,10 +12,10 @@ export type Role = "TRADER" | "ADMIN";
 export type Plan = "FREE" | "STARTER" | "PRO" | "ENTERPRISE";
 export const PLAN_PRICE: Record<Plan, number> = { FREE: 0, STARTER: 29, PRO: 79, ENTERPRISE: 199 };
 export const PLAN_LIMITS = {
-  FREE:       { maxUsers: 1, maxCapitalUsd: 500,    autoSwitch: false, multiUser: false, prioritySupport: false },
-  STARTER:    { maxUsers: 1, maxCapitalUsd: 500,    autoSwitch: false, multiUser: false, prioritySupport: false },
-  PRO:        { maxUsers: 1, maxCapitalUsd: 10_000, autoSwitch: true,  multiUser: false, prioritySupport: false },
-  ENTERPRISE: { maxUsers: 3, maxCapitalUsd: 0,      autoSwitch: true,  multiUser: true,  prioritySupport: true  },
+  FREE:       { maxUsers: 1, autoSwitch: false, multiUser: false, prioritySupport: false },
+  STARTER:    { maxUsers: 1, autoSwitch: false, multiUser: false, prioritySupport: false },
+  PRO:        { maxUsers: 1, autoSwitch: true,  multiUser: false, prioritySupport: false },
+  ENTERPRISE: { maxUsers: 3, autoSwitch: true,  multiUser: true,  prioritySupport: true  },
 };
 
 // ---------- Core user (simplified for Phase 1 — no tenant required) ----------

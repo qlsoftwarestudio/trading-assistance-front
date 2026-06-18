@@ -14,7 +14,7 @@ const SYMBOLS = ["HYPEUSDT", "SOLUSDT", "BTCUSDT", "ETHUSDT"];
 const Profile = () => {
   const user = useAuthStore((s) => s.user);
   const queryClient = useQueryClient();
-  const [newBot, setNewBot] = useState({ name: "", symbol: "HYPEUSDT", apiKey: "", apiSecret: "", maxCapitalUsd: "" });
+  const [newBot, setNewBot] = useState({ name: "", symbol: "HYPEUSDT", apiKey: "", apiSecret: "" });
 
   const { data: bots } = useQuery({ queryKey: ["bots"], queryFn: () => api.getBots(), refetchInterval: 10_000 });
 
@@ -22,7 +22,7 @@ const Profile = () => {
     mutationFn: api.createBot,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["bots"] });
-      setNewBot({ name: "", symbol: "HYPEUSDT", apiKey: "", apiSecret: "", maxCapitalUsd: "" });
+      setNewBot({ name: "", symbol: "HYPEUSDT", apiKey: "", apiSecret: "" });
     },
   });
 
@@ -68,7 +68,7 @@ const Profile = () => {
                         {bot.running ? "ACTIVO" : "PAUSADO"}
                       </Badge>
                     </div>
-                    <div className="text-xs text-muted-foreground">{bot.symbol} | Max: ${bot.maxCapitalUsd}</div>
+                    <div className="text-xs text-muted-foreground">{bot.symbol}</div>
                   </div>
                   <div className="flex items-center gap-2">
                     <Button size="sm" variant={bot.running ? "destructive" : "default"} className="h-7 text-xs gap-1"
@@ -110,17 +110,12 @@ const Profile = () => {
                 <Label className="text-xs">API Secret (Binance)</Label>
                 <Input size={1} className="h-8 text-xs" type="password" value={newBot.apiSecret} onChange={(e) => setNewBot({ ...newBot, apiSecret: e.target.value })} />
               </div>
-              <div className="space-y-1">
-                <Label className="text-xs">Capital Máximo (USD)</Label>
-                <Input size={1} className="h-8 text-xs" type="number" value={newBot.maxCapitalUsd} onChange={(e) => setNewBot({ ...newBot, maxCapitalUsd: e.target.value })} />
-              </div>
             </div>
             <Button size="sm" className="text-xs" onClick={() => createBot.mutate({
               name: newBot.name,
               symbol: newBot.symbol,
               apiKey: newBot.apiKey,
               apiSecret: newBot.apiSecret,
-              maxCapitalUsd: newBot.maxCapitalUsd ? Number(newBot.maxCapitalUsd) : undefined,
             })} disabled={!newBot.name || !newBot.apiKey || !newBot.apiSecret || createBot.isPending}>
               Crear bot
             </Button>
