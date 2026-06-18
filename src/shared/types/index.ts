@@ -36,9 +36,10 @@ export interface AuthResponse {
   email: string;
   role: Role;
   userId: number;
+  plan?: string;
+  maxBots?: number;
   // Phase 2 fields
   tenantId?: number;
-  plan?: Plan;
   expiresAt?: string;
 }
 
@@ -163,8 +164,9 @@ export interface AdminHealth {
 
 // ---------- Strategy status (mirrors /api/strategy/status) ----------
 export interface StrategyStatus {
-  strategy: string;
-  status: string;
+  swing: { running: boolean; description: string };
+  hunter: { running: boolean };
+  timestamp: string;
 }
 
 // ---------- Backtest ----------

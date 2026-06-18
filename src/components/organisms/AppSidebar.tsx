@@ -4,7 +4,7 @@ import {
   SidebarGroupLabel, SidebarMenu, SidebarMenuButton, SidebarMenuItem,
   SidebarHeader, useSidebar,
 } from "@/components/ui/sidebar";
-import { LayoutDashboard, LineChart, BarChart3, Settings, Shield, Bot, GraduationCap, CalendarDays } from "lucide-react";
+import { LayoutDashboard, LineChart, BarChart3, Settings, Shield, Bot, GraduationCap, CalendarDays, User } from "lucide-react";
 import { useAuthStore } from "@/store/authStore";
 import { cn } from "@/lib/utils";
 
@@ -14,6 +14,7 @@ const items = [
   { title: "Market", url: "/market", icon: BarChart3 },
   { title: "Academy", url: "/academy", icon: GraduationCap },
   { title: "Rendimiento", url: "/performance", icon: CalendarDays },
+  { title: "Perfil", url: "/profile", icon: User },
   { title: "Configuración", url: "/config", icon: Settings },
 ];
 

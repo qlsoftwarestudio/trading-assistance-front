@@ -142,11 +142,16 @@ function localLogin(email: string, password: string): AuthResponse {
 // Public API
 // ---------------------------------------------------------------------------
 export const api = {
-  // -------- Auth (local, no backend call) --------
-  login: async (email: string, password: string): Promise<AuthResponse> => {
-    await new Promise((r) => setTimeout(r, 200));
-    return localLogin(email, password);
-  },
+  // -------- Auth --------
+  login: (email: string, password: string): Promise<AuthResponse> =>
+    isMockMode
+      ? Promise.resolve({ token: "local-phase1", email, role: "ADMIN", userId: 1, plan: "FREE", maxBots: 1 })
+      : post<AuthResponse>("/auth/login", { email, password }),
+
+  register: (email: string, password: string, plan: string = "FREE"): Promise<AuthResponse> =>
+    isMockMode
+      ? Promise.resolve({ token: "local-phase1", email, role: "ADMIN", userId: 1, plan, maxBots: 1 })
+      : post<AuthResponse>("/auth/register", { email, password, plan }),
 
   // -------- Dashboard --------
   getDashboardSummary: (): Promise<DashboardSummary> =>
@@ -184,11 +189,38 @@ export const api = {
   getAllDailyMetrics: (): Promise<DailyMetrics[]> =>
     isMockMode ? Promise.resolve(mockMetricsHistory) : get<DailyMetrics[]>("/dashboard/metrics/history").catch(() => []),
 
+  // -------- Bots --------
+  getBots: (): Promise<Array<{ id: number; name: string; symbol: string; enabled: boolean; running: boolean; maxCapitalUsd: number }>> =>
+    get<Array<{ id: number; name: string; symbol: string; enabled: boolean; running: boolean; maxCapitalUsd: number }>>("/bots"),
+
+  createBot: (data: { name: string; symbol: string; apiKey: string; apiSecret: string; maxCapitalUsd?: number }): Promise<{ id: number; message: string }> =>
+    post<{ id: number; message: string }>("/bots", data),
+
+  toggleBot: (id: number): Promise<{ id: number; running: boolean; message: string }> =>
+    post<{ id: number; running: boolean; message: string }>(`/bots/${id}/toggle`),
+
+  deleteBot: (id: number): Promise<{ message: string }> =>
+    fetch(`${API_URL}/bots/${id}`, { method: "DELETE", headers: { Authorization: `Bearer ${localStorage.getItem("token") || ""}` } }).then((r) => r.json()),
+
   // -------- Strategy --------
   getStrategyStatus: (): Promise<StrategyStatus> =>
     isMockMode
-      ? Promise.resolve({ strategy: "HYPEUSDT 15m LONG+SHORT | RSI(5) < 45 / > 55 | Enabled: true", status: "ACTIVE" })
+      ? Promise.resolve({
+          swing: { running: true, description: "HYPEUSDT 15m | Enabled: true | Running: true" },
+          hunter: { running: false },
+          timestamp: new Date().toISOString(),
+        })
       : get<StrategyStatus>("/strategy/status"),
+
+  toggleSwing: (): Promise<{ swingRunning: boolean; message: string; timestamp: string }> =>
+    isMockMode
+      ? Promise.resolve({ swingRunning: true, message: "Swing toggled (mock)", timestamp: new Date().toISOString() })
+      : post<{ swingRunning: boolean; message: string; timestamp: string }>("/strategy/toggle"),
+
+  toggleHunter: (): Promise<{ hunterRunning: boolean; message: string; timestamp: string }> =>
+    isMockMode
+      ? Promise.resolve({ hunterRunning: false, message: "Hunter toggled (mock)", timestamp: new Date().toISOString() })
+      : post<{ hunterRunning: boolean; message: string; timestamp: string }>("/strategy/hunter/toggle"),
 
   executeStrategy: (): Promise<{ message: string; timestamp: string }> =>
     isMockMode
