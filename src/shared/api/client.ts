@@ -36,6 +36,14 @@ const axiosInstance: AxiosInstance = axios.create({
   timeout: 15_000,
 });
 
+axiosInstance.interceptors.request.use((config) => {
+  const token = localStorage.getItem("tb_token");
+  if (token) {
+    config.headers.Authorization = `Bearer ${token}`;
+  }
+  return config;
+});
+
 axiosInstance.interceptors.response.use(
   (r) => r,
   (err) => {
