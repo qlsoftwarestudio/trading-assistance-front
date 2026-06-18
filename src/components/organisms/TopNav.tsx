@@ -5,7 +5,6 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigge
 import { useAuthStore } from "@/store/authStore";
 import { useNavigate } from "react-router-dom";
 import { Bot, Check, LogOut, User as UserIcon } from "lucide-react";
-import { BotToggle } from "@/components/molecules/BotToggle";
 import { useQuery } from "@tanstack/react-query";
 import { api, isMockMode } from "@/shared/api/client";
 import { PnLBadge } from "@/components/atoms/PnLBadge";
@@ -75,8 +74,6 @@ export const TopNav = () => {
             <PnLBadge value={dailyPnLPercent} />
           </div>
         )}
-        <BotToggle variant="compact" />
-
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button variant="ghost" size="icon" className="rounded-full">

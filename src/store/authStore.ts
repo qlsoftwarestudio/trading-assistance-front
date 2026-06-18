@@ -50,7 +50,7 @@ export const useAuthStore = create<AuthState>((set) => ({
     set({ loading: true, error: null });
     try {
       const res = await api.login(email, password);
-      const user: BotUser = { id: res.userId, email: res.email, role: res.role, active: true };
+      const user: BotUser = { id: res.userId, email: res.email, role: "TRADER", active: true, plan: res.plan as any };
       localStorage.setItem("tb_token", res.token);
       localStorage.setItem("tb_user", JSON.stringify(user));
       set({ token: res.token, user, loading: false });

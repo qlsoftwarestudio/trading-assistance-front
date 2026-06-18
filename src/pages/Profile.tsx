@@ -16,7 +16,7 @@ const Profile = () => {
   const queryClient = useQueryClient();
   const [newBot, setNewBot] = useState({ name: "", symbol: "HYPEUSDT", apiKey: "", apiSecret: "" });
 
-  const { data: bots } = useQuery({ queryKey: ["bots"], queryFn: () => api.getBots(), refetchInterval: 10_000 });
+  const { data: bots, isLoading: botsLoading, error: botsError } = useQuery({ queryKey: ["bots"], queryFn: () => api.getBots(), refetchInterval: 10_000 });
 
   const createBot = useMutation({
     mutationFn: api.createBot,
@@ -57,7 +57,11 @@ const Profile = () => {
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
-          {bots && bots.length > 0 ? (
+          {botsLoading ? (
+            <p className="text-sm text-muted-foreground">Cargando bots...</p>
+          ) : botsError ? (
+            <p className="text-sm text-destructive">Error al cargar bots. Re-login si persiste.</p>
+          ) : bots && bots.length > 0 ? (
             <div className="space-y-2">
               {bots.map((bot) => (
                 <div key={bot.id} className="flex items-center justify-between p-3 border rounded-md">
