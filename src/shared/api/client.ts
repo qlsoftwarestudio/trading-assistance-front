@@ -208,7 +208,7 @@ export const api = {
     post<{ id: number; running: boolean; message: string }>(`/bots/${id}/toggle`),
 
   deleteBot: (id: number): Promise<{ message: string }> =>
-    fetch(`${API_URL}/bots/${id}`, { method: "DELETE", headers: { Authorization: `Bearer ${localStorage.getItem("token") || ""}` } }).then((r) => r.json()),
+    axiosInstance.delete<{ message: string }>(`/bots/${id}`).then((r) => r.data),
 
   // -------- Strategy --------
   getStrategyStatus: (): Promise<StrategyStatus> =>
