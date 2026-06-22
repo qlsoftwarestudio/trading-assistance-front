@@ -32,12 +32,14 @@ export interface BotUser {
 }
 
 export interface AuthResponse {
-  token: string;
-  email: string;
-  role: Role;
-  userId: number;
+  token?: string;
+  email?: string;
+  role?: Role;
+  userId?: number;
   plan?: string;
   maxBots?: number;
+  twoFactorRequired?: boolean;
+  tempToken?: string;
   // Phase 2 fields
   tenantId?: number;
   expiresAt?: string;

@@ -161,6 +161,9 @@ export const api = {
       ? Promise.resolve({ token: "local-phase1", email, role: "ADMIN", userId: 1, plan, maxBots: 1 })
       : post<AuthResponse>("/auth/register", { email, password, plan }),
 
+  validate2fa: (tempToken: string, otp: string): Promise<AuthResponse> =>
+    post<AuthResponse>("/auth/2fa/validate", { tempToken, otp }),
+
   // -------- Dashboard --------
   getDashboardSummary: (): Promise<DashboardSummary> =>
     isMockMode ? Promise.resolve(mockSummary) : get<DashboardSummary>("/dashboard/summary"),
