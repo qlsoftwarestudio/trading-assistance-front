@@ -40,12 +40,20 @@ function computeDailyPnl(metrics: DailyMetrics[]): Map<string, DayData> {
   for (let i = 0; i < sorted.length; i++) {
     const m = sorted[i];
     const prev = i > 0 ? sorted[i - 1] : null;
+    const trades = m.totalTrades - (prev?.totalTrades ?? 0);
+    const winningTrades = m.winningTrades - (prev?.winningTrades ?? 0);
+    const losingTrades = m.losingTrades - (prev?.losingTrades ?? 0);
+    const pnl = m.totalPnl - (prev?.totalPnl ?? 0);
+    // Skip days with no activity
+    if (trades === 0 && pnl === 0) continue;
+    // Compute win rate from the day's own trades, not the cumulative value
+    const winRate = trades > 0 ? (winningTrades / trades) * 100 : 0;
     map.set(m.date, {
-      pnl: m.totalPnl - (prev?.totalPnl ?? 0),
-      trades: m.totalTrades - (prev?.totalTrades ?? 0),
-      winningTrades: m.winningTrades - (prev?.winningTrades ?? 0),
-      losingTrades: m.losingTrades - (prev?.losingTrades ?? 0),
-      winRate: m.winRate ?? 0,
+      pnl,
+      trades,
+      winningTrades,
+      losingTrades,
+      winRate,
       profitFactor: m.profitFactor ?? 0,
     });
   }
