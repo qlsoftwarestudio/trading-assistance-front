@@ -79,6 +79,7 @@ export interface DashboardSummary {
   totalPnl: number;
   profitFactor: number;
   currentPrice: number;
+  prices?: Record<string, number>; // symbol → price for all configured symbols
 }
 
 // ---------- Signal (mirrors Spring Signal entity) ----------
@@ -124,12 +125,14 @@ export interface DailyMetrics {
 
 // ---------- Strategy config (mirrors /api/admin/config) ----------
 export interface StrategyConfig {
+  symbols: string;
   symbol: string;
   timeframe: string;
   enabled: boolean;
   rsiLength: number;
   rsiOversold: number;
   rsiOverbought: number;
+  rsiOverboughtUptrend: number;
   lookbackBars: number;
   killzoneThreshold: number;
   minMomentum: number;
@@ -137,16 +140,40 @@ export interface StrategyConfig {
   takeProfitPct: number;
   positionSizePct: number;
   leverage: number;
+  maxConcurrentTrades: number;
+  maxHoldMinutes: number;
   useAtrStop: boolean;
   atrPeriod: number;
   atrMultiplier: number;
+  trailingStopPct: number;
+  trailingActivationPct: number;
+  breakevenActivationPct: number;
+  slCooldownMinutes: number;
+  maxDailyLossPct: number;
   contextEnabled: boolean;
   requireConfluence: boolean;
   requireVolume: boolean;
   minVolumeRatio?: number;
-  trailingStopPct: number;
   useVwapFilter: boolean;
+  vwapBandPct: number;
+  useEmaFilter: boolean;
+  emaPeriod: number;
+  useRegressionFilter: boolean;
+  regressionLookback: number;
+  useDeltaVolumeFilter: boolean;
+  deltaVolumeThreshold: number;
+  useStochBbFilter: boolean;
+  stochPeriod: number;
+  stochOversold: number;
+  stochOverbought: number;
+  bbPeriod: number;
+  bbStdDev: number;
+  bbProximityPct: number;
+  useBbBasedSl: boolean;
   autoAdjust: boolean;
+  autoAdjustEnabled: boolean;
+  autoAdjustMinTrades: number;
+  autoAdjustWinRateThreshold: number;
   telegramEnabled: boolean;
   binanceTestnet: boolean;
 }

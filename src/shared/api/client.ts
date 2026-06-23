@@ -97,13 +97,22 @@ const mockTrades: Trade[] = [
 ];
 
 const mockConfig: StrategyConfig = {
-  symbol: "HYPEUSDT", timeframe: "15m", enabled: true, rsiLength: 5,
-  rsiOversold: 45, rsiOverbought: 55, lookbackBars: 24, killzoneThreshold: 25.0,
-  minMomentum: 0.3, stopLossPct: 2.0, takeProfitPct: 4.0, positionSizePct: 20.0,
-  leverage: 5, useAtrStop: false, atrPeriod: 14, atrMultiplier: 2.0,
-  contextEnabled: true, requireConfluence: false, requireVolume: true, minVolumeRatio: 1.0,
-  trailingStopPct: 0.6, useVwapFilter: true,
-  autoAdjust: false, telegramEnabled: false, binanceTestnet: true,
+  symbols: "HYPEUSDT,SOLUSDT", symbol: "HYPEUSDT", timeframe: "5m", enabled: true,
+  rsiLength: 7, rsiOversold: 30, rsiOverbought: 70, rsiOverboughtUptrend: 85,
+  lookbackBars: 12, killzoneThreshold: 30.0, minMomentum: 0.05,
+  stopLossPct: 0.6, takeProfitPct: 1.2, positionSizePct: 10.0,
+  leverage: 5, maxConcurrentTrades: 2, maxHoldMinutes: 45,
+  useAtrStop: true, atrPeriod: 10, atrMultiplier: 1.5,
+  trailingStopPct: 0.6, trailingActivationPct: 0.4, breakevenActivationPct: 0.25,
+  slCooldownMinutes: 10, maxDailyLossPct: 5.0,
+  contextEnabled: true, requireConfluence: false, requireVolume: false, minVolumeRatio: 1.2,
+  useVwapFilter: true, vwapBandPct: 1.5, useEmaFilter: true, emaPeriod: 9,
+  useRegressionFilter: true, regressionLookback: 50,
+  useDeltaVolumeFilter: true, deltaVolumeThreshold: 0.20,
+  useStochBbFilter: false, stochPeriod: 14, stochOversold: 20, stochOverbought: 80,
+  bbPeriod: 20, bbStdDev: 2.0, bbProximityPct: 1.0, useBbBasedSl: false,
+  autoAdjust: false, autoAdjustEnabled: true, autoAdjustMinTrades: 20, autoAdjustWinRateThreshold: 0.30,
+  telegramEnabled: false, binanceTestnet: true,
 };
 
 const mockHealth: AdminHealth = {

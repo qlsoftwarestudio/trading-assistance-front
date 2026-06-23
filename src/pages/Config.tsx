@@ -4,7 +4,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
-import { Play, RefreshCw, Send, ShieldCheck, AlertTriangle, Loader2 } from "lucide-react";
+import { Play, RefreshCw, Send, ShieldCheck, AlertTriangle, Loader2, CheckCircle2, XCircle } from "lucide-react";
 
 const Row = ({ label, value }: { label: string; value: React.ReactNode }) => (
   <div className="flex items-center justify-between py-1.5 border-b border-strong last:border-0">
@@ -61,14 +61,15 @@ const Config = () => {
 
       {cfg && (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+
           {/* Core strategy */}
           <Card className="border-strong bg-surface">
             <CardHeader className="pb-2">
               <CardTitle className="text-sm font-medium">Estrategia principal</CardTitle>
-              <CardDescription>Símbolo, timeframe y estado</CardDescription>
+              <CardDescription>Símbolos, timeframe y estado</CardDescription>
             </CardHeader>
             <CardContent className="space-y-0">
-              <Row label="Símbolo" value={cfg.symbol} />
+              <Row label="Símbolos activos" value={cfg.symbols ?? cfg.symbol} />
               <Row label="Timeframe" value={cfg.timeframe} />
               <Row label="Habilitada" value={
                 <Badge variant="outline" className={cfg.enabled ? "border-success/40 text-success" : "border-muted text-muted-foreground"}>
@@ -77,6 +78,8 @@ const Config = () => {
               } />
               <Row label="Apalancamiento" value={`${cfg.leverage}x`} />
               <Row label="Tamaño posición" value={`${cfg.positionSizePct}%`} />
+              <Row label="Max trades simultáneos" value={cfg.maxConcurrentTrades} />
+              <Row label="Max hold" value={`${cfg.maxHoldMinutes} min`} />
               <Row label="Testnet Binance" value={
                 cfg.binanceTestnet
                   ? <span className="flex items-center gap-1 text-warning"><AlertTriangle className="h-3 w-3" /> Sí (testnet)</span>
@@ -95,8 +98,9 @@ const Config = () => {
               <Row label="RSI Length" value={cfg.rsiLength} />
               <Row label="RSI Oversold (LONG)" value={`< ${cfg.rsiOversold}`} />
               <Row label="RSI Overbought (SHORT)" value={`> ${cfg.rsiOverbought}`} />
+              <Row label="RSI Overbought uptrend" value={`> ${cfg.rsiOverboughtUptrend}`} />
               <Row label="Lookback Bars" value={cfg.lookbackBars} />
-              <Row label="Zone Percentile (bottom/top %)" value={cfg.killzoneThreshold} />
+              <Row label="Zone Percentile" value={`${cfg.killzoneThreshold}%`} />
               <Row label="Min Momentum" value={`${cfg.minMomentum}%`} />
             </CardContent>
           </Card>
@@ -104,27 +108,93 @@ const Config = () => {
           {/* Risk */}
           <Card className="border-strong bg-surface">
             <CardHeader className="pb-2">
-              <CardTitle className="text-sm font-medium flex items-center gap-2"><AlertTriangle className="h-4 w-4 text-warning" /> Riesgo</CardTitle>
+              <CardTitle className="text-sm font-medium flex items-center gap-2">
+                <AlertTriangle className="h-4 w-4 text-warning" /> Riesgo
+              </CardTitle>
             </CardHeader>
             <CardContent className="space-y-0">
               <Row label="Stop Loss" value={cfg.useAtrStop ? `ATR(${cfg.atrPeriod}) × ${cfg.atrMultiplier}` : `${cfg.stopLossPct}%`} />
               <Row label="Take Profit" value={`${cfg.takeProfitPct}%`} />
-              <Row label="Stop dinámico (ATR)" value={cfg.useAtrStop ? "Habilitado" : "Deshabilitado"} />
+              <Row label="Stop dinámico (ATR)" value={
+                cfg.useAtrStop
+                  ? <span className="flex items-center gap-1 text-success"><CheckCircle2 className="h-3 w-3" /> Habilitado</span>
+                  : <span className="flex items-center gap-1 text-muted-foreground"><XCircle className="h-3 w-3" /> Deshabilitado</span>
+              } />
+              <Row label="Trailing Stop" value={`${cfg.trailingStopPct}%`} />
+              <Row label="Trailing activación" value={`+${cfg.trailingActivationPct}%`} />
+              <Row label="Breakeven activación" value={`+${cfg.breakevenActivationPct}%`} />
+              <Row label="Cooldown SL" value={`${cfg.slCooldownMinutes} min`} />
+              <Row label="Max pérdida diaria" value={`${cfg.maxDailyLossPct}%`} />
             </CardContent>
           </Card>
 
-          {/* Market context */}
+          {/* Advanced filters */}
           <Card className="border-strong bg-surface">
             <CardHeader className="pb-2">
-              <CardTitle className="text-sm font-medium">Contexto de mercado</CardTitle>
-              <CardDescription>Multi-timeframe + volumen + correlación BTC</CardDescription>
+              <CardTitle className="text-sm font-medium">Filtros avanzados</CardTitle>
+              <CardDescription>VWAP · EMA · Regresión · Delta volumen</CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-0">
+              <Row label="VWAP filter" value={cfg.useVwapFilter
+                ? <span className="flex items-center gap-1 text-success"><CheckCircle2 className="h-3 w-3" /> ±{cfg.vwapBandPct}%</span>
+                : <span className="text-muted-foreground">Off</span>
+              } />
+              <Row label="EMA filter" value={cfg.useEmaFilter
+                ? <span className="flex items-center gap-1 text-success"><CheckCircle2 className="h-3 w-3" /> EMA{cfg.emaPeriod}</span>
+                : <span className="text-muted-foreground">Off</span>
+              } />
+              <Row label="Regresión lineal" value={cfg.useRegressionFilter
+                ? <span className="flex items-center gap-1 text-success"><CheckCircle2 className="h-3 w-3" /> {cfg.regressionLookback} velas</span>
+                : <span className="text-muted-foreground">Off</span>
+              } />
+              <Row label="Delta volumen" value={cfg.useDeltaVolumeFilter
+                ? <span className="flex items-center gap-1 text-success"><CheckCircle2 className="h-3 w-3" /> umbral &gt;{cfg.deltaVolumeThreshold}</span>
+                : <span className="text-muted-foreground">Off</span>
+              } />
+            </CardContent>
+          </Card>
+
+          {/* Stochastic + Bollinger Bands */}
+          <Card className="border-strong bg-surface">
+            <CardHeader className="pb-2">
+              <CardTitle className="text-sm font-medium flex items-center gap-2">
+                Stochastic + Bollinger Bands
+                <Badge variant="outline" className={cfg.useStochBbFilter ? "border-success/40 text-success" : "border-muted text-muted-foreground"}>
+                  {cfg.useStochBbFilter ? "ACTIVO" : "OFF"}
+                </Badge>
+              </CardTitle>
+              <CardDescription>Filtro de triple confluencia</CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-0">
+              <Row label="Periodo Stoch" value={cfg.stochPeriod} />
+              <Row label="Stoch Oversold (LONG)" value={`< ${cfg.stochOversold}`} />
+              <Row label="Stoch Overbought (SHORT)" value={`> ${cfg.stochOverbought}`} />
+              <Row label="BB Periodo" value={cfg.bbPeriod} />
+              <Row label="BB Desv. estándar" value={`±${cfg.bbStdDev}σ`} />
+              <Row label="BB proximidad" value={`< ${cfg.bbProximityPct}%`} />
+              <Row label="SL dinámico BB" value={cfg.useBbBasedSl
+                ? <span className="flex items-center gap-1 text-success"><CheckCircle2 className="h-3 w-3" /> Habilitado</span>
+                : <span className="flex items-center gap-1 text-muted-foreground"><XCircle className="h-3 w-3" /> Off</span>
+              } />
+            </CardContent>
+          </Card>
+
+          {/* Market context + Auto-adjust */}
+          <Card className="border-strong bg-surface">
+            <CardHeader className="pb-2">
+              <CardTitle className="text-sm font-medium">Contexto · Auto-ajuste · Sistema</CardTitle>
+              <CardDescription>Multi-timeframe + aprendizaje automático</CardDescription>
             </CardHeader>
             <CardContent className="space-y-0">
               <Row label="Análisis de contexto" value={cfg.contextEnabled ? "Habilitado" : "Deshabilitado"} />
               <Row label="Confluencia requerida" value={cfg.requireConfluence ? "Sí" : "No"} />
               <Row label="Volumen requerido" value={cfg.requireVolume ? "Sí" : "No"} />
               <Row label="Min volumen ratio" value={`${cfg.minVolumeRatio ?? 1.0}x`} />
-              <Row label="Auto-ajuste parámetros" value={cfg.autoAdjust ? "Habilitado" : "Deshabilitado"} />
+              <Row label="Auto-ajuste" value={
+                cfg.autoAdjustEnabled
+                  ? <span className="flex items-center gap-1 text-success"><CheckCircle2 className="h-3 w-3" /> {cfg.autoAdjustMinTrades} trades mín · WR &gt;{Math.round((cfg.autoAdjustWinRateThreshold ?? 0.3) * 100)}%</span>
+                  : <span className="text-muted-foreground">Off</span>
+              } />
               <Row label="Telegram" value={
                 <Badge variant="outline" className={cfg.telegramEnabled ? "border-primary/40 text-primary" : "border-muted text-muted-foreground"}>
                   {cfg.telegramEnabled ? "Conectado" : "Deshabilitado"}
@@ -132,6 +202,7 @@ const Config = () => {
               } />
             </CardContent>
           </Card>
+
         </div>
       )}
     </div>

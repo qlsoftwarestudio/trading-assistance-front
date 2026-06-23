@@ -51,7 +51,11 @@ const Dashboard = () => {
           value={summary ? formatCurrency(summary.balance) : "—"}
           icon={Wallet}
           accent
-          subtitle={summary ? `Precio actual: $${formatNumber(summary.currentPrice, 4)}` : undefined}
+          subtitle={
+            summary?.prices && Object.keys(summary.prices).length > 0
+              ? Object.entries(summary.prices).map(([sym, price]) => `${sym.replace("USDT", "")}: $${formatNumber(price, 4)}`).join("  ·  ")
+              : summary ? `Precio actual: $${formatNumber(summary.currentPrice, 4)}` : undefined
+          }
         />
         <PortfolioCard
           title="P&L Total"
