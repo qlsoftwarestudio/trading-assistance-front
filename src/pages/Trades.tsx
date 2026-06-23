@@ -47,7 +47,7 @@ const Trades = () => {
         <span className="text-xs text-muted-foreground ml-auto">{totalElements} resultados</span>
       </div>
 
-      <TradeTable trades={paginated} currentPrice={summary?.currentPrice} />
+      <TradeTable trades={paginated} prices={summary?.prices} />
 
       <div className="flex items-center justify-between">
         <span className="text-xs text-muted-foreground">Página {page + 1} de {totalPages}</span>

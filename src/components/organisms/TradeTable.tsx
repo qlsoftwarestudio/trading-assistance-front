@@ -8,7 +8,7 @@ import { cn } from "@/lib/utils";
 interface Props {
   trades: Trade[];
   compact?: boolean;
-  currentPrice?: number;
+  prices?: Record<string, number>;
 }
 
 const statusStyles: Record<Trade["status"], string> = {
@@ -24,7 +24,7 @@ const exitReasonStyles: Record<string, string> = {
   MANUAL: "bg-primary/10 text-primary border-primary/20",
 };
 
-export const TradeTable = ({ trades, compact, currentPrice }: Props) => {
+export const TradeTable = ({ trades, compact, prices }: Props) => {
   return (
   <div className="rounded-lg border border-strong bg-surface overflow-hidden">
     <Table>
@@ -70,6 +70,7 @@ export const TradeTable = ({ trades, compact, currentPrice }: Props) => {
             <TableCell className="text-right">
               {(() => {
                 const closedPnl = t.pnl != null && t.pnlPercent != null;
+                const currentPrice = prices?.[t.symbol];
                 const unrealized = !closedPnl && t.status === "OPEN" && currentPrice !== undefined
                   ? (t.action === "LONG" ? currentPrice - t.entryPrice : t.entryPrice - currentPrice) * t.quantity
                   : undefined;

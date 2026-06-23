@@ -6,11 +6,11 @@ import type { Trade } from "@/shared/types";
 
 interface Props {
   trades: Trade[];
-  currentPrice?: number;
+  prices?: Record<string, number>;
   className?: string;
 }
 
-export const TradePerformanceCard = ({ trades, currentPrice, className }: Props) => {
+export const TradePerformanceCard = ({ trades, prices, className }: Props) => {
   const closed = useMemo(
     () => trades.filter((t) => t.status === "CLOSED" && t.pnl != null).slice(0, 20),
     [trades],
@@ -18,15 +18,16 @@ export const TradePerformanceCard = ({ trades, currentPrice, className }: Props)
   const open = useMemo(() => trades.filter((t) => t.status === "OPEN"), [trades]);
 
   const unrealizedTotal = useMemo(() => {
-    if (!currentPrice) return 0;
     return open.reduce((sum, t) => {
+      const currentPrice = prices?.[t.symbol];
+      if (!currentPrice) return sum;
       const unr =
         t.action === "LONG"
           ? (currentPrice - t.entryPrice) * t.quantity
           : (t.entryPrice - currentPrice) * t.quantity;
       return sum + unr;
     }, 0);
-  }, [open, currentPrice]);
+  }, [open, prices]);
 
   const chartData = closed.map((t, i) => ({ idx: `#${i + 1}`, pnl: t.pnl! }));
 
@@ -53,7 +54,7 @@ export const TradePerformanceCard = ({ trades, currentPrice, className }: Props)
             {closed.length > 0 ? `Últimas ${closed.length} operaciones cerradas` : "Sin operaciones cerradas aún"}
           </CardDescription>
         </div>
-        {open.length > 0 && currentPrice != null && (
+        {open.length > 0 && (
           <div className="text-right shrink-0">
             <div className="text-[10px] text-muted-foreground uppercase tracking-wide">No realizado</div>
             <div className={`font-mono text-sm font-semibold tabular-nums ${unrealizedTotal >= 0 ? "text-success" : "text-destructive"}`}>

@@ -100,7 +100,7 @@ const Dashboard = () => {
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-5">
-        <TradePerformanceCard trades={trades?.content ?? []} currentPrice={summary?.currentPrice} className="lg:col-span-2" />
+        <TradePerformanceCard trades={trades?.content ?? []} prices={summary?.prices} className="lg:col-span-2" />
         <Card className="border-strong bg-surface">
           <CardHeader className="pb-2">
             <CardTitle className="text-sm font-medium">Configuración activa</CardTitle>
@@ -113,7 +113,7 @@ const Dashboard = () => {
 
       <div className="space-y-3">
         <h2 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider">Operaciones recientes</h2>
-        <TradeTable trades={trades?.content ?? []} compact currentPrice={summary?.currentPrice} />
+        <TradeTable trades={trades?.content ?? []} compact prices={summary?.prices} />
       </div>
     </div>
   );
