@@ -29,22 +29,24 @@ interface AuthState {
   selectUser: (userId: number) => Promise<AuthResponse>;
 }
 
+const getStoredAuth = (): { token: string | null; user: BotUser | null } => {
+  try {
+    const token = localStorage.getItem("tb_token");
+    const userRaw = localStorage.getItem("tb_user");
+    if (token && userRaw) return { token, user: JSON.parse(userRaw) as BotUser };
+  } catch { /* ignore */ }
+  return { token: null, user: null };
+};
+
 export const useAuthStore = create<AuthState>((set) => ({
-  user: null,
-  token: null,
+  ...getStoredAuth(),
   loading: false,
   error: null,
   availableUsers: [],
 
   hydrate: () => {
-    const token = localStorage.getItem("tb_token");
-    const userRaw = localStorage.getItem("tb_user");
-    if (token && userRaw) {
-      try {
-        const user = JSON.parse(userRaw) as BotUser;
-        set({ token, user });
-      } catch { /* ignore */ }
-    }
+    const { token, user } = getStoredAuth();
+    if (token && user) set({ token, user });
   },
 
   login: async (email, password) => {
