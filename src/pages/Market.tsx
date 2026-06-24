@@ -39,6 +39,7 @@ const Market = () => {
               <TableHead className="text-xs uppercase tracking-wider text-muted-foreground">Fecha</TableHead>
               <TableHead className="text-xs uppercase tracking-wider text-muted-foreground">Señal</TableHead>
               <TableHead className="text-xs uppercase tracking-wider text-muted-foreground text-right">Precio</TableHead>
+              <TableHead className="text-xs uppercase tracking-wider text-muted-foreground">Símbolo</TableHead>
               <TableHead className="text-xs uppercase tracking-wider text-muted-foreground text-right">RSI</TableHead>
               <TableHead className="text-xs uppercase tracking-wider text-muted-foreground text-right">Momentum</TableHead>
               <TableHead className="text-xs uppercase tracking-wider text-muted-foreground">Tendencia 1h/4h/1d</TableHead>
@@ -49,12 +50,12 @@ const Market = () => {
           <TableBody>
             {isLoading && (
               <TableRow>
-                <TableCell colSpan={8} className="text-center py-10 text-muted-foreground text-sm">Cargando señales…</TableCell>
+                <TableCell colSpan={9} className="text-center py-10 text-muted-foreground text-sm">Cargando señales…</TableCell>
               </TableRow>
             )}
             {!isLoading && signals.length === 0 && (
               <TableRow>
-                <TableCell colSpan={8} className="text-center py-10 text-muted-foreground text-sm">No hay señales registradas aún</TableCell>
+                <TableCell colSpan={9} className="text-center py-10 text-muted-foreground text-sm">No hay señales registradas aún</TableCell>
               </TableRow>
             )}
             {signals.map((s) => (
@@ -66,6 +67,7 @@ const Market = () => {
                   </Badge>
                 </TableCell>
                 <TableCell className="text-right font-mono tabular-nums text-sm">${fmt(s.price, 4)}</TableCell>
+                <TableCell className="font-mono text-xs">{s.symbol ?? "—"}</TableCell>
                 <TableCell className="text-right font-mono tabular-nums text-sm">{fmt(s.rsi)}</TableCell>
                 <TableCell className="text-right font-mono tabular-nums text-sm">{fmt(s.momentum)}%</TableCell>
                 <TableCell className="font-mono text-xs">
