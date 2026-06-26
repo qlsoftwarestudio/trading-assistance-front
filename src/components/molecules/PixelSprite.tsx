@@ -48,31 +48,31 @@ const PALETTE: Record<string, string> = {
 // b=blue  B=light blue  p=flash  P=bright flash  c=cyan(line)  C=bright cyan
 // t=tan(wood)  u=dark hull  U=hull hl  m=water  M=foam
 const SPRITES: Record<string, string[]> = {
-  // ===== HUNTER — soldier style (ref: soldier sprite) =====
-  // idle: sitting against wall, rifle beside, sleeping
+  // ===== HUNTER — soldier style =====
+  // idle: sitting on ground, helmet OFF beside him, rifle resting, clearly NOT aiming
   hunter_idle: [
     "                ",
-    "      SSSS      ",  // wall
-    "      S  S      ",
-    " kkk  S  S      ",  // helmet
-    "kddk  S  S      ",  // visor dark
-    " gggg SSSS      ",  // shoulders + wall base
-    " gGGGg ssss     ",  // torso
-    "  gGg           ",  // waist (sitting)
-    "  nnn           ",  // legs bent
-    "  n n           ",
-    "  s s           ",  // boots
-    "  ssss          ",  // rifle on ground
+    "                ",
+    "      kkk       ",  // helmet OFF, placed on ground beside
+    "      ddd       ",  // visor part of helmet
+    "     ggggg      ",  // head/torso (no visor on face)
+    "     gGGGg      ",  // shoulders relaxed
+    "      ggg       ",  // waist
+    "      nnn       ",  // legs crossed/sitting
+    "      n n       ",
+    "      s s       ",  // boots
+    "     ssss       ",  // rifle on ground beside
+    "    SSSSSS      ",  // low wall behind
     "oooooooooooooo  ",  // ground
     "                ",
     "                ",
     "                ",
   ],
-  // aiming: standing combat stance, rifle with both hands (ref: soldier idle)
+  // aiming: standing combat stance, rifle with both hands, visor ON
   hunter_aiming: [
     "                ",
-    "      kkk       ",  // helmet
-    "     kddk       ",  // visor
+    "      kkk       ",  // helmet ON
+    "     kddk       ",  // visor down (aiming)
     "      gggg      ",  // shoulders
     "     gGGGGg     ",  // torso ghillie
     "     gGGGGg     ",  // torso
@@ -81,13 +81,13 @@ const SPRITES: Record<string, string[]> = {
     "      n  n      ",
     "     ss  ss     ",  // boots
     "     ssss       ",  // rifle stock
-    "        ss      ",  // barrel extending
+    "        ss      ",  // barrel extending right
     "                ",
     "                ",
     "                ",
     "                ",
   ],
-  // shooting: same as aiming + muzzle flash (ref: soldier shot)
+  // shooting: same stance + muzzle flash at END of barrel
   hunter_shooting: [
     "                ",
     "      kkk       ",
@@ -100,7 +100,7 @@ const SPRITES: Record<string, string[]> = {
     "      n  n      ",
     "     ss  ss     ",
     "     ssss       ",
-    "     ppPPss     ",  // flash on barrel
+    "        ssPPpp  ",  // barrel + flash at END (cols 12-15)
     "                ",
     "                ",
     "                ",
