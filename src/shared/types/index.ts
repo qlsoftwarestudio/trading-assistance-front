@@ -64,6 +64,7 @@ export interface Trade {
   exitReason?: ExitReason;
   commission?: number;
   binanceOrderId?: string;
+  setupType?: string; // e.g. "Mean-Reversion", "Breakout", "SCALP_INDUCTION", "SCALP_DIVERGENCE"
   createdAt?: string;
   updatedAt?: string;
 }

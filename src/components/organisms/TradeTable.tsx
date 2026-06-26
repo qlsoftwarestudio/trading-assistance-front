@@ -24,6 +24,14 @@ const exitReasonStyles: Record<string, string> = {
   MANUAL: "bg-primary/10 text-primary border-primary/20",
 };
 
+const isScalp = (setupType?: string) => setupType?.startsWith("SCALP_") ?? false;
+
+const strategyBadge = (setupType?: string) => {
+  if (!setupType) return { label: "—", className: "bg-muted text-muted-foreground border-strong" };
+  if (isScalp(setupType)) return { label: "SCALP", className: "bg-orange-500/10 text-orange-500 border-orange-500/20" };
+  return { label: "SWING", className: "bg-blue-500/10 text-blue-500 border-blue-500/20" };
+};
+
 export const TradeTable = ({ trades, compact, prices }: Props) => {
   return (
   <div className="rounded-lg border border-strong bg-surface overflow-hidden">
@@ -32,6 +40,7 @@ export const TradeTable = ({ trades, compact, prices }: Props) => {
         <TableRow className="border-strong hover:bg-transparent">
           <TableHead className="text-xs uppercase tracking-wider text-muted-foreground">Símbolo</TableHead>
           <TableHead className="text-xs uppercase tracking-wider text-muted-foreground">Tipo</TableHead>
+          <TableHead className="text-xs uppercase tracking-wider text-muted-foreground">Estrategia</TableHead>
           <TableHead className="text-xs uppercase tracking-wider text-muted-foreground text-right">Entrada</TableHead>
           {!compact && <TableHead className="text-xs uppercase tracking-wider text-muted-foreground text-right">Salida</TableHead>}
           <TableHead className="text-xs uppercase tracking-wider text-muted-foreground text-right">Cantidad</TableHead>
@@ -44,7 +53,7 @@ export const TradeTable = ({ trades, compact, prices }: Props) => {
       <TableBody>
         {trades.length === 0 && (
           <TableRow>
-            <TableCell colSpan={compact ? 7 : 9} className="text-center py-12 text-muted-foreground text-sm">
+            <TableCell colSpan={compact ? 8 : 10} className="text-center py-12 text-muted-foreground text-sm">
               No hay operaciones que mostrar
             </TableCell>
           </TableRow>
@@ -59,6 +68,16 @@ export const TradeTable = ({ trades, compact, prices }: Props) => {
               )}>
                 {t.action}
               </Badge>
+            </TableCell>
+            <TableCell>
+              {(() => {
+                const sb = strategyBadge(t.setupType);
+                return (
+                  <span className={cn("rounded border px-1.5 py-0.5 text-[10px] font-medium", sb.className)}>
+                    {sb.label}
+                  </span>
+                );
+              })()}
             </TableCell>
             <TableCell className="text-right font-mono tabular-nums text-sm">${formatPrice(t.entryPrice)}</TableCell>
             {!compact && (

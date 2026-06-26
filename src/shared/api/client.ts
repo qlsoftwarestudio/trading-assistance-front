@@ -63,6 +63,7 @@ const post = <T>(url: string, body?: unknown) =>
 
 export interface TradesQuery {
   status?: TradeStatus | "ALL";
+  symbol?: string;
   page?: number;
   size?: number;
 }
@@ -192,6 +193,7 @@ export const api = {
     }
     const p: Record<string, unknown> = { page: params.page ?? 0, size: params.size ?? 20 };
     if (params.status && params.status !== "ALL") p.status = params.status;
+    if (params.symbol && params.symbol !== "ALL") p.symbol = params.symbol;
     return get<Page<Trade>>("/dashboard/trades", p);
   },
 
