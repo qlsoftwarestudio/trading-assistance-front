@@ -42,142 +42,146 @@ const PALETTE: Record<string, string> = {
 };
 
 // Each line is a row (16 chars). Top to bottom.
-// Profile view (both characters face RIGHT)
-// k=black  d=dark grey  g=dark green  G=light green  w=white
-// n=brown  s=grey(stone wall + rifle)  S=light grey(wall)  o=orange(earth)
-// b=blue  B=light blue  p=flash  P=bright flash  c=cyan(rod)  C=bright cyan
-// t=tan(wood seat)  u=dark blue(hull)  U=medium blue(hull hl)  m=water  M=foam
+// Both characters face RIGHT (profile view).
+// k=black  d=dark grey  g=dark green  G=light green  h=skin
+// n=brown  s=grey  S=light grey  o=orange(earth)  r=red  w=white
+// b=blue  B=light blue  p=flash  P=bright flash  c=cyan(line)  C=bright cyan
+// t=tan(wood)  u=dark hull  U=hull hl  m=water  M=foam
 const SPRITES: Record<string, string[]> = {
-  // ===== HUNTER / SCALP — prone behind vertical wall =====
-  // Body is horizontal (lying flat). Wall is vertical on the RIGHT as cover.
-  // Hunter faces right, rifle peeks past the wall.
-
+  // ===== HUNTER — soldier style (ref: soldier sprite) =====
+  // idle: sitting against wall, rifle beside, sleeping
   hunter_idle: [
     "                ",
+    "      SSSS      ",  // wall
+    "      S  S      ",
+    " kkk  S  S      ",  // helmet
+    "kddk  S  S      ",  // visor dark
+    " gggg SSSS      ",  // shoulders + wall base
+    " gGGGg ssss     ",  // torso
+    "  gGg           ",  // waist (sitting)
+    "  nnn           ",  // legs bent
+    "  n n           ",
+    "  s s           ",  // boots
+    "  ssss          ",  // rifle on ground
+    "oooooooooooooo  ",  // ground
     "                ",
     "                ",
-    " kkk            ",
-    "kwwk gggg       ",
-    " kdk gGGGGg      ",
-    "    gGGGGGg      ",
-    "    gGGGGg       ",
-    "     gggg        ",
-    "     nnnn        ",
-    "     n  n        ",
-    "    ssss         ",
-    "   SSSSSSSS      ",
-    "   ssssssss      ",
-    "   oooooooo      ",
     "                ",
   ],
+  // aiming: standing combat stance, rifle with both hands (ref: soldier idle)
   hunter_aiming: [
     "                ",
+    "      kkk       ",  // helmet
+    "     kddk       ",  // visor
+    "      gggg      ",  // shoulders
+    "     gGGGGg     ",  // torso ghillie
+    "     gGGGGg     ",  // torso
+    "      gggg      ",  // waist
+    "      n  n      ",  // legs apart (combat stance)
+    "      n  n      ",
+    "     ss  ss     ",  // boots
+    "     ssss       ",  // rifle stock
+    "        ss      ",  // barrel extending
     "                ",
     "                ",
-    " kkk            ",
-    "kwwk gggg       ",
-    " kdk gGGGGg      ",
-    "    gGGGGGg  s   ",
-    "    gGGGGg  ss   ",
-    "     gggg  ss    ",
-    "     nnnn s      ",
-    "     n  n        ",
-    "    ssss         ",
-    "   SSSSSSSS      ",
-    "   ssssssss      ",
-    "   oooooooo      ",
+    "                ",
     "                ",
   ],
+  // shooting: same as aiming + muzzle flash (ref: soldier shot)
   hunter_shooting: [
     "                ",
+    "      kkk       ",
+    "     kddk       ",
+    "      gggg      ",
+    "     gGGGGg     ",
+    "     gGGGGg     ",
+    "      gggg      ",
+    "      n  n      ",
+    "      n  n      ",
+    "     ss  ss     ",
+    "     ssss       ",
+    "     ppPPss     ",  // flash on barrel
     "                ",
-    "          PPpP  ",
-    " kkk       Pp   ",
-    "kwwk gggg  p     ",
-    " kdk gGGGGg      ",
-    "    gGGGGGg      ",
-    "    gGGGGg       ",
-    "     gggg        ",
-    "     nnnn        ",
-    "     n  n        ",
-    "    ssss         ",
-    "   SSSSSSSS      ",
-    "   ssssssss      ",
-    "   oooooooo      ",
+    "                ",
+    "                ",
     "                ",
   ],
-  // ===== SWING / FISHERMAN — profile in boat, facing right =====
+  // ===== FISHERMAN — standing in boat (ref: fish sprite sheet) =====
+  // idle: standing with rod resting down
   swing_idle: [
     "                ",
-    "    kkk         ",
-    "   kbbb k       ",
-    "    kbb         ",
-    "    BBBB        ",
-    "   BbBbBbB      ",
-    "    BBBB        ",
-    "    nnnn        ",
-    "    n  n        ",
-    "    s  s        ",
-    "  tttttttttttt  ",
-    " uuuuuuuuuuuuuu ",
-    " uuUuuuuuuuuUuu ",
-    "  uuu      uuu  ",
-    " mmmm      mmmm ",
+    "     kkk        ",  // hat
+    "    kbbbk       ",  // hat brim
+    "     kbb        ",  // face
+    "     hhhh       ",  // shirt (skin tone = light)
+    "    nh  hn      ",  // arms + pants top
+    "    n    n      ",  // pants
+    "    s    s      ",  // boots
+    "   sss  sss     ",  // boat floor
+    "  tttttttttt    ",  // wood seat
+    " uuuuuuuuuuuu   ",  // hull
+    " uuUuuuuuuUuu   ",
+    "  uuu    uuu    ",
+    " mmmm    mmmm   ",  // water
+    "                ",
     "                ",
   ],
+  // casting: rod raised back, line in air
   swing_casting: [
     "            c   ",
     "           c    ",
-    "    kkk   c     ",
-    "   kbbb k c     ",
-    "    kbb  c      ",
-    "    BBBB c      ",
-    "   BbBbBbB      ",
-    "    BBBB        ",
-    "    nnnn        ",
-    "    n  n        ",
-    "    s  s        ",
-    "  tttttttttttt  ",
-    " uuuuuuuuuuuuuu ",
-    " uuUuuuuuuuuUuu ",
-    "  uuu      uuu  ",
-    " mmmm      mmmm ",
+    "     kkk  c     ",  // hat
+    "    kbbbk c     ",  // hat + line
+    "     kbb  c     ",  // face
+    "     hhhh c     ",  // shirt
+    "    nh  hn      ",  // arms
+    "    n    n      ",  // pants
+    "    s    s      ",  // boots
+    "   sss  sss     ",  // boat
+    "  tttttttttt    ",
+    " uuuuuuuuuuuu   ",
+    " uuUuuuuuuUuu   ",
+    "  uuu    uuu    ",
+    " mmmm    mmmm   ",
+    "                ",
   ],
+  // reeling: rod bent forward, pulling fish
   swing_reeling: [
     "                ",
-    "    kkk         ",
-    "   kbbb k       ",
-    "    kbb         ",
-    "    BBBB        ",
-    "   BbBbBbB      ",
-    "    BBBB   cc   ",
-    "    nnnn   c    ",
-    "    n  n  c     ",
-    "    s  s c      ",
-    "  tttttttttttt  ",
-    " uuuuuuuuuuuuuu ",
-    " uuUuuuuuuuuUuu ",
-    "  uuu      uuu  ",
-    " mmmm      mmmm ",
+    "     kkk        ",
+    "    kbbbk       ",
+    "     kbb        ",
+    "     hhhh  cc   ",  // shirt + line tension
+    "    nh  hn c    ",  // arms + line
+    "    n    n      ",
+    "    s    s      ",
+    "   sss  sss     ",
+    "  tttttttttt    ",
+    " uuuuuuuuuuuu   ",
+    " uuUuuuuuuUuu   ",
+    "  uuu    uuu    ",
+    " mmmm    mmmm   ",
+    "                ",
     "                ",
   ],
+  // caught: fish jumping, sparkles, splashes
   swing_caught: [
-    "   C     C      ",
-    "  C C   C C     ",
-    "    kkk         ",
-    "   kbbb k       ",
-    "    kbb    C    ",
-    "    BBBB  C C   ",
-    "   BbBbBbB      ",
-    "    BBBB        ",
-    "    nnnn        ",
-    "    n  n        ",
-    "    s  s  M     ",
-    "  tttttttttttt  ",
-    " uuuuuuuuuuuuuu ",
-    " uuUuuuuuuuuUuu ",
-    "  uuu      uuu  ",
-    " mMmM      mMmM ",
+    "    C     C     ",
+    "   C C   C C    ",
+    "     kkk        ",
+    "    kbbbk       ",
+    "     kbb   C    ",
+    "     hhhh C C   ",
+    "    nh  hn      ",
+    "    n    n      ",
+    "    s    s      ",
+    "   sss Msss     ",  // splash
+    "  tttttttttt    ",
+    " uuuuuuuuuuuu   ",
+    " uuUuuuuuuUuu   ",
+    "  uuu    uuu    ",
+    " mMmM    mMmM   ",  // foamy water
+    "                ",
   ],
 };
 
