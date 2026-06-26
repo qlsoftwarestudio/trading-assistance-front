@@ -11,13 +11,12 @@ interface Props {
 }
 
 const ALL_SPRITES = [
-  { key: "hunter_idle", label: "Durmiendo", group: "Hunter" },
-  { key: "hunter_aiming", label: "Apuntando", group: "Hunter" },
-  { key: "hunter_shooting", label: "Disparando", group: "Hunter" },
+  { key: "hunter_idle", label: "En guardia", group: "Hunter" },
+  { key: "hunter_move", label: "Buscando", group: "Hunter" },
+  { key: "hunter_shoot", label: "Disparando", group: "Hunter" },
   { key: "swing_idle", label: "Esperando", group: "Swing" },
-  { key: "swing_casting", label: "Lanzando", group: "Swing" },
-  { key: "swing_reeling", label: "Recuperando", group: "Swing" },
-  { key: "swing_caught", label: "¡Pescado!", group: "Swing" },
+  { key: "swing_fish", label: "Pescando", group: "Swing" },
+  { key: "swing_hook", label: "¡Anzuelo!", group: "Swing" },
 ] as const;
 
 export const StrategyVisualCard = ({ trades }: Props) => {
@@ -77,7 +76,7 @@ export const StrategyVisualCard = ({ trades }: Props) => {
             <PixelSprite
               sprite={hunterSprite}
               size={5}
-              animate={hunterSprite === "hunter_shooting"}
+              animate={hunterSprite === "hunter_shoot"}
               className="my-1"
             />
             <span className="text-[10px] text-muted-foreground text-center leading-tight">
@@ -102,7 +101,7 @@ export const StrategyVisualCard = ({ trades }: Props) => {
             <PixelSprite
               sprite={swingSprite}
               size={5}
-              animate={swingSprite === "swing_reeling"}
+              animate={swingSprite === "swing_hook"}
               className="my-1"
             />
             <span className="text-[10px] text-muted-foreground text-center leading-tight">
@@ -135,7 +134,7 @@ export const StrategyVisualCard = ({ trades }: Props) => {
           <div className="mt-3 grid grid-cols-4 gap-2 rounded border border-strong p-2 bg-surface-2/20">
             {ALL_SPRITES.map((s) => (
               <div key={s.key} className="flex flex-col items-center gap-1">
-                <PixelSprite sprite={s.key} size={3} animate={s.key === "hunter_shooting" || s.key === "swing_reeling"} />
+                <PixelSprite sprite={s.key} size={3} animate={s.key === "hunter_shoot" || s.key === "swing_hook"} />
                 <span className="text-[8px] text-muted-foreground text-center leading-tight">
                   {s.label}
                 </span>

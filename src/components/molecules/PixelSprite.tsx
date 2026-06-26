@@ -48,73 +48,73 @@ const PALETTE: Record<string, string> = {
 // b=blue  B=light blue  p=flash  P=bright flash  c=cyan(line)  C=bright cyan
 // t=tan(wood)  u=dark hull  U=hull hl  m=water  M=foam
 const SPRITES: Record<string, string[]> = {
-  // ===== HUNTER — soldier style =====
-  // idle: sitting on ground, helmet OFF beside him, rifle resting, clearly NOT aiming
+  // ===== HUNTER — soldier (ref image 3) =====
+  // idle: standing, rifle aiming forward (like soldier IDLE row)
   hunter_idle: [
     "                ",
-    "                ",
-    "      kkk       ",  // helmet OFF, placed on ground beside
-    "      ddd       ",  // visor part of helmet
-    "     ggggg      ",  // head/torso (no visor on face)
-    "     gGGGg      ",  // shoulders relaxed
-    "      ggg       ",  // waist
-    "      nnn       ",  // legs crossed/sitting
-    "      n n       ",
-    "      s s       ",  // boots
-    "     ssss       ",  // rifle on ground beside
-    "    SSSSSS      ",  // low wall behind
-    "oooooooooooooo  ",  // ground
-    "                ",
-    "                ",
-    "                ",
-  ],
-  // aiming: standing combat stance, rifle with both hands, visor ON
-  hunter_aiming: [
-    "                ",
-    "      kkk       ",  // helmet ON
-    "     kddk       ",  // visor down (aiming)
+    "      kkk       ",  // helmet
+    "     kddk       ",  // visor
     "      gggg      ",  // shoulders
     "     gGGGGg     ",  // torso ghillie
     "     gGGGGg     ",  // torso
     "      gggg      ",  // waist
-    "      n  n      ",  // legs apart (combat stance)
+    "      n  n      ",  // legs apart, firm stance
     "      n  n      ",
     "     ss  ss     ",  // boots
-    "     ssss       ",  // rifle stock
+    "     ssss       ",  // rifle stock in hands
     "        ss      ",  // barrel extending right
     "                ",
     "                ",
     "                ",
     "                ",
   ],
-  // shooting: same stance + muzzle flash at END of barrel
-  hunter_shooting: [
+  // move: walking, rifle held lower (like soldier MOVE row)
+  hunter_move: [
     "                ",
-    "      kkk       ",
-    "     kddk       ",
+    "      kkk       ",  // helmet
+    "     kddk       ",  // visor
+    "      gggg      ",  // shoulders
+    "     gGGGGg     ",  // torso
+    "      gggg      ",  // waist
     "      gggg      ",
-    "     gGGGGg     ",
-    "     gGGGGg     ",
-    "      gggg      ",
-    "      n  n      ",
-    "      n  n      ",
-    "     ss  ss     ",
-    "     ssss       ",
-    "        ssPPpp  ",  // barrel + flash at END (cols 12-15)
+    "      n  n      ",  // legs (walking stride)
+    "     n   n      ",  // one leg forward
+    "     s   s      ",  // boots
+    "      ssss      ",  // rifle held at waist
+    "         s      ",  // barrel pointing down-right
     "                ",
     "                ",
     "                ",
     "                ",
   ],
-  // ===== FISHERMAN — standing in boat (ref: fish sprite sheet) =====
-  // idle: standing with rod resting down
+  // shoot: kneeling, firing (like soldier SHOT 2 row)
+  hunter_shoot: [
+    "                ",
+    "      kkk       ",  // helmet
+    "     kddk       ",  // visor
+    "      gggg      ",  // shoulders
+    "     gGGGGg     ",  // torso
+    "      gggg      ",  // waist
+    "      n n       ",  // kneeling (one knee down)
+    "     n  nn      ",  // legs bent
+    "     s  ss      ",  // boots/knee pad
+    "    ssss        ",  // rifle stock against shoulder
+    "       ssPPpp   ",  // barrel + muzzle flash at tip
+    "                ",
+    "                ",
+    "                ",
+    "                ",
+    "                ",
+  ],
+  // ===== FISHERMAN — in boat (ref image 2) =====
+  // idle: standing, rod resting down (like Fish row, frame 1)
   swing_idle: [
     "                ",
-    "     kkk        ",  // hat
+    "     kkk        ",  // bucket hat
     "    kbbbk       ",  // hat brim
     "     kbb        ",  // face
-    "     hhhh       ",  // shirt (skin tone = light)
-    "    nh  hn      ",  // arms + pants top
+    "     hhhh       ",  // shirt
+    "    nh  hn      ",  // arms at sides
     "    n    n      ",  // pants
     "    s    s      ",  // boots
     "   sss  sss     ",  // boat floor
@@ -126,14 +126,14 @@ const SPRITES: Record<string, string[]> = {
     "                ",
     "                ",
   ],
-  // casting: rod raised back, line in air
-  swing_casting: [
-    "            c   ",
+  // fish: rod pointing at water, fishing (like Fish row)
+  swing_fish: [
+    "            c   ",  // line/rod tip
     "           c    ",
-    "     kkk  c     ",  // hat
-    "    kbbbk c     ",  // hat + line
+    "     kkk  c     ",  // bucket hat
+    "    kbbbk c     ",  // hat + rod shaft
     "     kbb  c     ",  // face
-    "     hhhh c     ",  // shirt
+    "     hhhh c     ",  // shirt, holding rod up
     "    nh  hn      ",  // arms
     "    n    n      ",  // pants
     "    s    s      ",  // boots
@@ -145,14 +145,14 @@ const SPRITES: Record<string, string[]> = {
     " mmmm    mmmm   ",
     "                ",
   ],
-  // reeling: rod bent forward, pulling fish
-  swing_reeling: [
+  // hook: rod bent, line curved, pulling (like Hook row)
+  swing_hook: [
     "                ",
-    "     kkk        ",
+    "     kkk        ",  // bucket hat
     "    kbbbk       ",
     "     kbb        ",
-    "     hhhh  cc   ",  // shirt + line tension
-    "    nh  hn c    ",  // arms + line
+    "     hhhh  cc   ",  // shirt, rod bent forward
+    "    nh  hn c    ",  // arms pulling
     "    n    n      ",
     "    s    s      ",
     "   sss  sss     ",
@@ -162,25 +162,6 @@ const SPRITES: Record<string, string[]> = {
     "  uuu    uuu    ",
     " mmmm    mmmm   ",
     "                ",
-    "                ",
-  ],
-  // caught: fish jumping, sparkles, splashes
-  swing_caught: [
-    "    C     C     ",
-    "   C C   C C    ",
-    "     kkk        ",
-    "    kbbbk       ",
-    "     kbb   C    ",
-    "     hhhh C C   ",
-    "    nh  hn      ",
-    "    n    n      ",
-    "    s    s      ",
-    "   sss Msss     ",  // splash
-    "  tttttttttt    ",
-    " uuuuuuuuuuuu   ",
-    " uuUuuuuuuUuu   ",
-    "  uuu    uuu    ",
-    " mMmM    mMmM   ",  // foamy water
     "                ",
   ],
 };
@@ -229,13 +210,13 @@ export const PixelSprite = ({ sprite, size = 4, className, animate = false }: Pr
 
 // State helpers
 export function getHunterSprite(openScalpTrades: number, inKillzone: boolean): string {
-  if (openScalpTrades > 0) return "hunter_shooting";
-  if (inKillzone) return "hunter_aiming";
-  return "hunter_idle";
+  if (openScalpTrades > 0) return "hunter_shoot";      // active trade = kneeling, firing
+  if (inKillzone) return "hunter_move";                  // in killzone, searching = walking
+  return "hunter_idle";                                   // outside killzone = standing guard
 }
 
 export function getSwingSprite(openSwingTrades: number, lastSwingClosedMinutes?: number): string {
-  if (openSwingTrades > 0) return "swing_reeling";
-  if (lastSwingClosedMinutes != null && lastSwingClosedMinutes < 30) return "swing_caught";
-  return "swing_idle";
+  if (openSwingTrades > 0) return "swing_hook";          // active trade = rod bent, pulling
+  if (lastSwingClosedMinutes != null && lastSwingClosedMinutes < 30) return "swing_fish"; // recently caught, fishing again
+  return "swing_idle";                                    // waiting = rod resting
 }
