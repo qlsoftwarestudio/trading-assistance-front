@@ -5,6 +5,26 @@ import { cn } from "@/lib/utils";
 import { Crosshair, Fish } from "lucide-react";
 import type { Trade } from "@/shared/types";
 
+// Floating Z's animation for sleeping hunter
+const SleepingZ = () => (
+  <div className="absolute -top-4 right-0 flex flex-col items-end pointer-events-none">
+    <span className="text-[10px] text-muted-foreground opacity-0 animate-[floatZ_3s_ease-in-out_infinite]">
+      Z
+    </span>
+    <span className="text-[8px] text-muted-foreground opacity-0 animate-[floatZ_3s_ease-in-out_infinite_1s]">
+      z
+    </span>
+    <style>{`
+      @keyframes floatZ {
+        0% { opacity: 0; transform: translateY(0) translateX(0); }
+        30% { opacity: 0.7; }
+        70% { opacity: 0.5; }
+        100% { opacity: 0; transform: translateY(-12px) translateX(4px); }
+      }
+    `}</style>
+  </div>
+);
+
 interface Props {
   trades: Trade[];
 }
@@ -62,12 +82,14 @@ export const StrategyVisualCard = ({ trades }: Props) => {
               <Crosshair className="h-3 w-3 text-orange-500" />
               <span className="text-[10px] font-bold uppercase tracking-wider text-orange-500">Hunter</span>
             </div>
-            <PixelSprite
-              sprite={hunterSprite}
-              size={5}
-              animate={hunterSprite === "hunter_shooting"}
-              className="my-1"
-            />
+            <div className="relative my-1">
+              <PixelSprite
+                sprite={hunterSprite}
+                size={5}
+                animate={hunterSprite === "hunter_shooting"}
+              />
+              {hunterSprite === "hunter_idle" && <SleepingZ />}
+            </div>
             <span className="text-[10px] text-muted-foreground text-center leading-tight">
               {hunterLabel}
             </span>
