@@ -18,9 +18,12 @@ import type {
   DashboardSummary,
   EquityPoint,
   Page,
+  RejectionHeatmapItem,
+  SetupPerformance,
   Signal,
   StrategyConfig,
   StrategyStatus,
+  SymbolComparison,
   Trade,
   TradeStatus,
 } from "@/shared/types";
@@ -277,6 +280,16 @@ export const api = {
     isMockMode
       ? Promise.resolve({ message: "Test notification sent (mock)", timestamp: new Date().toISOString() })
       : post<{ message: string; timestamp: string }>("/telegram/test"),
+
+  // -------- Analytics (Phase 3.2 + 3.3) --------
+  getSetupPerformance: (days = 7): Promise<SetupPerformance[]> =>
+    isMockMode ? Promise.resolve([]) : get<SetupPerformance[]>("/dashboard/setup-performance", { days }),
+
+  getRejectionHeatmap: (days = 7): Promise<RejectionHeatmapItem[]> =>
+    isMockMode ? Promise.resolve([]) : get<RejectionHeatmapItem[]>("/dashboard/rejection-heatmap", { days }),
+
+  getSymbolComparison: (): Promise<SymbolComparison[]> =>
+    isMockMode ? Promise.resolve([]) : get<SymbolComparison[]>("/dashboard/symbol-comparison"),
 
   // -------- Health --------
   getHealth: (): Promise<{ status: string; service: string; version: string }> =>

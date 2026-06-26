@@ -228,6 +228,37 @@ export interface BacktestResult {
   trades: BacktestTrade[];
 }
 
+// ---------- Setup performance (Phase 3.2) ----------
+export interface SetupPerformance {
+  setup: string;
+  action: string;
+  totalTrades: number;
+  winningTrades: number;
+  losingTrades: number;
+  winRate: number; // 0-100
+  avgPnl: number;
+}
+
+// ---------- Rejection heatmap (Phase 3.2) ----------
+export interface RejectionHeatmapItem {
+  reason: string;
+  count: number;
+  pct: number;
+}
+
+// ---------- Symbol comparison (Phase 3.3) ----------
+export interface SymbolComparison {
+  symbol: string;
+  totalTrades: number;
+  winningTrades: number;
+  losingTrades: number;
+  winRate: number;
+  totalPnl: number;
+  profitFactor: number;
+  grossProfit: number;
+  grossLoss: number;
+}
+
 // ---------- Equity curve point ----------
 export interface EquityPoint {
   timestamp: string;

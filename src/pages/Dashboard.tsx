@@ -4,6 +4,9 @@ import { api } from "@/shared/api/client";
 import { PortfolioCard } from "@/components/molecules/PortfolioCard";
 import { TradePerformanceCard } from "@/components/organisms/TradePerformanceCard";
 import { TradeTable } from "@/components/organisms/TradeTable";
+import { SetupPerformanceCard } from "@/components/organisms/SetupPerformanceCard";
+import { RejectionHeatmapCard } from "@/components/organisms/RejectionHeatmapCard";
+import { SymbolComparisonCard } from "@/components/organisms/SymbolComparisonCard";
 import { Wallet, TrendingUp, Activity, BarChart2, Power } from "lucide-react";
 import { formatCurrency, formatNumber } from "@/shared/lib/format";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -18,6 +21,9 @@ const Dashboard = () => {
   const { data: summary } = useQuery({ queryKey: ["summary"], queryFn: () => api.getDashboardSummary(), refetchInterval: 5_000 });
   const { data: trades } = useQuery({ queryKey: ["trades", "recent"], queryFn: () => api.getTrades({ size: 20, page: 0 }), refetchInterval: 8_000 });
   const { data: status } = useQuery({ queryKey: ["strategy-status"], queryFn: () => api.getStrategyStatus(), refetchInterval: 30_000 });
+  const { data: setupPerf } = useQuery({ queryKey: ["setup-performance"], queryFn: () => api.getSetupPerformance(), refetchInterval: 30_000 });
+  const { data: rejectionHeatmap } = useQuery({ queryKey: ["rejection-heatmap"], queryFn: () => api.getRejectionHeatmap(), refetchInterval: 30_000 });
+  const { data: symbolComparison } = useQuery({ queryKey: ["symbol-comparison"], queryFn: () => api.getSymbolComparison(), refetchInterval: 30_000 });
 
   const toggleSwing = useMutation({
     mutationFn: api.toggleSwing,
@@ -99,8 +105,16 @@ const Dashboard = () => {
         </Card>
       </div>
 
+      {/* Row 1: Performance chart + Setup hit rate */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
+        <TradePerformanceCard trades={trades?.content ?? []} prices={summary?.prices} />
+        <SetupPerformanceCard data={setupPerf ?? []} />
+      </div>
+
+      {/* Row 2: Rejection heatmap + Symbol comparison + Config */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-5">
-        <TradePerformanceCard trades={trades?.content ?? []} prices={summary?.prices} className="lg:col-span-2" />
+        <RejectionHeatmapCard data={rejectionHeatmap ?? []} />
+        <SymbolComparisonCard data={symbolComparison ?? []} />
         <Card className="border-strong bg-surface">
           <CardHeader className="pb-2">
             <CardTitle className="text-sm font-medium">Configuración activa</CardTitle>
