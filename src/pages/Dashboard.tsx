@@ -3,7 +3,6 @@ import { useEffect } from "react";
 import { api } from "@/shared/api/client";
 import { PortfolioCard } from "@/components/molecules/PortfolioCard";
 import { TradePerformanceCard } from "@/components/organisms/TradePerformanceCard";
-import { TradeTable } from "@/components/organisms/TradeTable";
 import { SetupPerformanceCard } from "@/components/organisms/SetupPerformanceCard";
 import { RejectionHeatmapCard } from "@/components/organisms/RejectionHeatmapCard";
 import { SymbolComparisonCard } from "@/components/organisms/SymbolComparisonCard";
@@ -111,23 +110,10 @@ const Dashboard = () => {
         <SetupPerformanceCard data={setupPerf ?? []} />
       </div>
 
-      {/* Row 2: Rejection heatmap + Symbol comparison + Config */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-5">
+      {/* Row 2: Rejection heatmap + Symbol comparison */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
         <RejectionHeatmapCard data={rejectionHeatmap ?? []} />
         <SymbolComparisonCard data={symbolComparison ?? []} />
-        <Card className="border-strong bg-surface">
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium">Configuración activa</CardTitle>
-          </CardHeader>
-          <CardContent className="text-xs text-muted-foreground leading-relaxed whitespace-pre-wrap break-all">
-            {status?.swing?.description ?? "Cargando..."}
-          </CardContent>
-        </Card>
-      </div>
-
-      <div className="space-y-3">
-        <h2 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider">Operaciones recientes</h2>
-        <TradeTable trades={trades?.content ?? []} compact prices={summary?.prices} />
       </div>
     </div>
   );
