@@ -6,6 +6,7 @@ import { TradePerformanceCard } from "@/components/organisms/TradePerformanceCar
 import { SetupPerformanceCard } from "@/components/organisms/SetupPerformanceCard";
 import { RejectionHeatmapCard } from "@/components/organisms/RejectionHeatmapCard";
 import { SymbolComparisonCard } from "@/components/organisms/SymbolComparisonCard";
+import { StrategyVisualCard } from "@/components/organisms/StrategyVisualCard";
 import { Wallet, TrendingUp, Activity, BarChart2, Power } from "lucide-react";
 import { formatCurrency, formatNumber } from "@/shared/lib/format";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -110,10 +111,11 @@ const Dashboard = () => {
         <SetupPerformanceCard data={setupPerf ?? []} />
       </div>
 
-      {/* Row 2: Rejection heatmap + Symbol comparison */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
+      {/* Row 2: Rejection heatmap + Symbol comparison + Strategy visual */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-5">
         <RejectionHeatmapCard data={rejectionHeatmap ?? []} />
         <SymbolComparisonCard data={symbolComparison ?? []} />
+        <StrategyVisualCard trades={trades?.content ?? []} />
       </div>
     </div>
   );
