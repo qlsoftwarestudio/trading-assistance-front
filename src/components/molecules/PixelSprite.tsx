@@ -33,6 +33,12 @@ const PALETTE: Record<string, string> = {
   H: "#f4a261", // darker skin
   c: "#118ab2", // cyan
   C: "#06d6a0", // bright cyan
+  t: "#d4a373", // tan/wood (boat seat)
+  T: "#faedcd", // light wood
+  u: "#1d3557", // dark blue (boat hull)
+  U: "#457b9d", // medium blue (hull highlight)
+  m: "#a8dadc", // water/light blue
+  M: "#f1faee", // water foam
 };
 
 // Each line is a row (16 chars). Top to bottom.
@@ -98,8 +104,10 @@ const SPRITES: Record<string, string[]> = {
     "                ",
     "                ",
   ],
-  // ===== SWING / FISHERMAN =====
-  // Fisherman idle: bucket hat, blue vest, fishing rod resting
+  // ===== SWING / FISHERMAN IN BOAT =====
+  // Fisherman sitting in a wooden boat with dark blue hull
+  // t=tan wood seat, u=dark hull, U=hull highlight, m=water
+
   swing_idle: [
     "      kkkk      ",
     "     kbbbbk     ",
@@ -110,15 +118,14 @@ const SPRITES: Record<string, string[]> = {
     "    BbBbBbBb    ",
     "    BbbbbbbB    ",
     "     BbbbbB     ",
-    "      BBBB      ",
     "      nnnn      ",
-    "      n  n      ",
-    "      n  n      ",
-    "     ss  ss     ",
-    "    sss  sss    ",
-    "                ",
+    "     nn  nn     ",
+    "    ss  ss      ",
+    "  tttttttttttt  ",
+    " uuuuuuuuuuuuuu ",
+    "  uuu      uuu  ",
+    " mmm        mmm ",
   ],
-  // Fisherman casting: rod bent back, line in air
   swing_casting: [
     "      kkkk  c   ",
     "     kbbbbk c   ",
@@ -129,15 +136,14 @@ const SPRITES: Record<string, string[]> = {
     "    BbBbBbBb    ",
     "    BbbbbbbB    ",
     "     BbbbbB     ",
-    "      BBBB      ",
     "      nnnn      ",
-    "      n  n      ",
-    "      n  n      ",
-    "     ss  ss     ",
-    "    sss  sss    ",
-    "                ",
+    "     nn  nn     ",
+    "    ss  ss      ",
+    "  tttttttttttt  ",
+    " uuuuuuuuuuuuuu ",
+    "  uuu      uuu  ",
+    " mmm        mmm ",
   ],
-  // Fisherman reeling: rod bent forward, fish pulling
   swing_reeling: [
     "      kkkk      ",
     "     kbbbbk     ",
@@ -148,15 +154,14 @@ const SPRITES: Record<string, string[]> = {
     "    BbBbBbBb c  ",
     "    BbbbbbbBcc  ",
     "     BbbbbB     ",
-    "      BBBB      ",
     "      nnnn      ",
-    "      n  n      ",
-    "      n  n      ",
-    "     ss  ss     ",
-    "    sss  sss    ",
-    "                ",
+    "     nn  nn     ",
+    "    ss  ss      ",
+    "  tttttttttttt  ",
+    " uuuuuuuuuuuuuu ",
+    "  uuu      uuu  ",
+    " mmm        mmm ",
   ],
-  // Fisherman caught: fish jumping, sparkles
   swing_caught: [
     "    C     C     ",
     "   C C   C C    ",
@@ -169,11 +174,11 @@ const SPRITES: Record<string, string[]> = {
     "    BbBbBbBb    ",
     "    BbbbbbbB    ",
     "     BbbbbB     ",
-    "      BBBB      ",
-    "      nnnn      ",
-    "      n  n      ",
-    "     ss  ss     ",
-    "    sss  sss    ",
+    "      nnnn   M  ",
+    "  M  nn  nn M   ",
+    "  tttttttttttt  ",
+    " uuuuuuuuuuuuuu ",
+    "mMmm        mMmm",
   ],
 };
 

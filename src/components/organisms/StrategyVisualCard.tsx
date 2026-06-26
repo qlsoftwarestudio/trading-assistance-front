@@ -1,8 +1,9 @@
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
 import { PixelSprite, getHunterSprite, getSwingSprite } from "@/components/molecules/PixelSprite";
 import { cn } from "@/lib/utils";
-import { Crosshair, Fish } from "lucide-react";
+import { Crosshair, Fish, Eye } from "lucide-react";
 import type { Trade } from "@/shared/types";
 
 // Floating Z's animation for sleeping hunter
@@ -29,7 +30,18 @@ interface Props {
   trades: Trade[];
 }
 
+const ALL_SPRITES = [
+  { key: "hunter_idle", label: "Durmiendo", group: "Hunter" },
+  { key: "hunter_aiming", label: "Apuntando", group: "Hunter" },
+  { key: "hunter_shooting", label: "Disparando", group: "Hunter" },
+  { key: "swing_idle", label: "Esperando", group: "Swing" },
+  { key: "swing_casting", label: "Lanzando", group: "Swing" },
+  { key: "swing_reeling", label: "Recuperando", group: "Swing" },
+  { key: "swing_caught", label: "¡Pescado!", group: "Swing" },
+] as const;
+
 export const StrategyVisualCard = ({ trades }: Props) => {
+  const [showGallery, setShowGallery] = useState(false);
   const now = Date.now();
 
   const openScalp = trades.filter((t) => t.status === "OPEN" && t.setupType?.startsWith("SCALP_"));
@@ -128,6 +140,37 @@ export const StrategyVisualCard = ({ trades }: Props) => {
             )}
           </div>
         </div>
+
+        <div className="mt-3 flex justify-center">
+          <Button
+            variant="ghost"
+            size="sm"
+            className="h-6 text-[10px] gap-1 text-muted-foreground hover:text-foreground"
+            onClick={() => setShowGallery((v) => !v)}
+          >
+            <Eye className="h-3 w-3" />
+            {showGallery ? "Ocultar estados" : "Ver todos los estados"}
+          </Button>
+        </div>
+
+        {showGallery && (
+          <div className="mt-3 grid grid-cols-4 gap-2 rounded border border-strong p-2 bg-surface-2/20">
+            {ALL_SPRITES.map((s) => (
+              <div key={s.key} className="flex flex-col items-center gap-1">
+                <PixelSprite sprite={s.key} size={3} animate={s.key === "hunter_shooting" || s.key === "swing_reeling"} />
+                <span className="text-[8px] text-muted-foreground text-center leading-tight">
+                  {s.label}
+                </span>
+                <span className={cn(
+                  "text-[7px] font-bold uppercase tracking-wider",
+                  s.group === "Hunter" ? "text-orange-500" : "text-blue-500"
+                )}>
+                  {s.group}
+                </span>
+              </div>
+            ))}
+          </div>
+        )}
       </CardContent>
     </Card>
   );
