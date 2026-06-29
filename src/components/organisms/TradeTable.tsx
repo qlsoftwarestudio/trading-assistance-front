@@ -9,6 +9,7 @@ interface Props {
   trades: Trade[];
   compact?: boolean;
   prices?: Record<string, number>;
+  onRowClick?: (symbol: string) => void;
 }
 
 const statusStyles: Record<Trade["status"], string> = {
@@ -32,7 +33,7 @@ const strategyBadge = (setupType?: string) => {
   return { label: "SWING", className: "bg-blue-500/10 text-blue-500 border-blue-500/20" };
 };
 
-export const TradeTable = ({ trades, compact, prices }: Props) => {
+export const TradeTable = ({ trades, compact, prices, onRowClick }: Props) => {
   return (
   <div className="rounded-lg border border-strong bg-surface overflow-hidden">
     <Table>
@@ -59,7 +60,11 @@ export const TradeTable = ({ trades, compact, prices }: Props) => {
           </TableRow>
         )}
         {trades.map((t) => (
-          <TableRow key={t.id} className="border-strong hover:bg-surface-2/50">
+          <TableRow
+            key={t.id}
+            className="border-strong hover:bg-surface-2/50 cursor-pointer"
+            onClick={() => onRowClick?.(t.symbol)}
+          >
             <TableCell className="font-mono font-medium text-sm">{t.symbol}</TableCell>
             <TableCell>
               <Badge variant="outline" className={cn(
