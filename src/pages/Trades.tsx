@@ -63,7 +63,7 @@ const Trades = () => {
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-5 gap-5">
-        <div className="lg:col-span-3 space-y-4">
+        <div className="lg:col-span-2 space-y-4">
           <TradeTable trades={paginated} prices={summary?.prices} onRowClick={(s) => setSelectedSymbol(s)} />
 
           <div className="flex items-center justify-between">
@@ -79,7 +79,7 @@ const Trades = () => {
           </div>
         </div>
 
-        <div className="lg:col-span-2 flex flex-col gap-3">
+        <div className="lg:col-span-3 flex flex-col gap-3">
           <div className="flex items-center justify-between">
             <h2 className="text-sm font-semibold tracking-tight">Gráfico {selectedSymbol}</h2>
             {selectedSymbol !== chartSymbol && (
