@@ -10,7 +10,7 @@ import type { TradeStatus } from "@/shared/types";
 
 const STATUSES: (TradeStatus | "ALL")[] = ["ALL", "OPEN", "CLOSED"];
 const SYMBOLS = ["ALL", "HYPEUSDT", "SOLUSDT"];
-const DEFAULT_SYMBOL = "HYPEUSDT";
+const DEFAULT_SYMBOL = "SOLUSDT";
 
 const PAGE_SIZE = 10;
 

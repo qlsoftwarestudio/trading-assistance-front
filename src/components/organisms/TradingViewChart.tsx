@@ -39,7 +39,8 @@ export const TradingViewChart = ({
     containerRef.current.appendChild(widgetContainer);
     widgetRef.current = widgetContainer;
 
-    const fullSymbol = `${exchange}:${symbol}`;
+    const isFutures = exchange === "BINANCE" && symbol.endsWith("USDT");
+    const fullSymbol = `${exchange}:${symbol}${isFutures ? ".P" : ""}`;
 
     const initWidget = () => {
       if (window.TradingView) {
