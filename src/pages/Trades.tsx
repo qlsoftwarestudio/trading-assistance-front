@@ -3,6 +3,7 @@ import { useQuery } from "@tanstack/react-query";
 import { api } from "@/shared/api/client";
 import { TradeTable } from "@/components/organisms/TradeTable";
 import { TradingViewChart } from "@/components/organisms/TradingViewChart";
+import { SignalPanel } from "@/components/organisms/SignalPanel";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { ChevronLeft, ChevronRight } from "lucide-react";
@@ -89,6 +90,7 @@ const Trades = () => {
           <div className="rounded-lg border border-strong bg-surface overflow-hidden flex-1 min-h-[500px]">
             <TradingViewChart symbol={selectedSymbol} />
           </div>
+          <SignalPanel symbol={selectedSymbol} />
         </div>
       </div>
     </div>

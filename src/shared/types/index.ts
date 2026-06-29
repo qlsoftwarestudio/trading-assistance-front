@@ -110,6 +110,24 @@ export interface Signal {
   distanceToResistancePct?: number;
 }
 
+// ---------- Unified Signal (accepted + rejected) ----------
+export interface UnifiedSignal {
+  id: string | number;
+  symbol: string;
+  action: TradeAction;
+  price?: number;
+  rsi?: number;
+  setupType?: string;
+  status: "ACCEPTED" | "REJECTED";
+  timestamp: string;
+  rejectionReason?: string;
+  executed?: boolean;
+  bbUpper?: number;
+  bbLower?: number;
+  stochK5m?: number;
+  stochD5m?: number;
+}
+
 // ---------- Daily metrics (mirrors Spring DailyMetrics entity) ----------
 export interface DailyMetrics {
   id: number;

@@ -26,6 +26,7 @@ import type {
   SymbolComparison,
   Trade,
   TradeStatus,
+  UnifiedSignal,
 } from "@/shared/types";
 
 const API_URL = import.meta.env.VITE_API_URL as string | undefined;
@@ -207,6 +208,14 @@ export const api = {
 
   getSignals: (): Promise<Signal[]> =>
     isMockMode ? Promise.resolve(mockSignals) : get<Signal[]>("/dashboard/signals"),
+
+  getAllSignals: (symbol?: string, hours = 24): Promise<UnifiedSignal[]> =>
+    isMockMode
+      ? Promise.resolve([
+          { id: 1, symbol: "SOLUSDT", action: "LONG", price: 72.85, rsi: 14.2, setupType: "Mean-Reversion", status: "REJECTED", timestamp: new Date(Date.now() - 3_600_000).toISOString(), rejectionReason: "STOCH_BB_FILTER: stochK=14.2, lowerBandGap=0.35%", executed: false },
+          { id: 2, symbol: "SOLUSDT", action: "SHORT", price: 74.39, rsi: 86.5, setupType: "Breakout", status: "ACCEPTED", timestamp: new Date(Date.now() - 1_800_000).toISOString(), executed: true, bbUpper: 74.39, bbLower: 72.85, stochK5m: 86.5 },
+        ])
+      : get<UnifiedSignal[]>("/dashboard/signals/all", { symbol, hours }),
 
   getDailyMetrics: (): Promise<DailyMetrics | null> =>
     isMockMode ? Promise.resolve(mockMetrics) : get<DailyMetrics>("/dashboard/metrics").catch(() => null),
