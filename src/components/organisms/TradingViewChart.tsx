@@ -58,7 +58,7 @@ export const TradingViewChart = ({
           hide_side_toolbar: false,
           save_image: true,
           container_id: containerId,
-          studies: ["RSI@tv-basicstudies", "MASimple@tv-basicstudies"],
+          studies: ["RSI@tv-basicstudies", "BB@tv-basicstudies"],
         });
       }
     };
