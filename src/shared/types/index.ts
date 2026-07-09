@@ -194,7 +194,22 @@ export interface StrategyConfig {
   autoAdjustMinTrades: number;
   autoAdjustWinRateThreshold: number;
   telegramEnabled: boolean;
-  binanceTestnet: boolean;
+  binanceTestnet?: boolean;
+  activeExchange?: string;
+  symbolRiskConfig?: string;
+  symbolSessionUtc?: string;
+  symbolRsiOversold?: string;
+  symbolRsiOverbought?: string;
+  symbolBbPeriod?: string;
+  swingTrailingStopPct?: number;
+  swingTrailingActivationPct?: number;
+  partialTpEnabled?: boolean;
+  reEntryEnabled?: boolean;
+  reEntryWindowMinutes?: number;
+  useRangeBreakout?: boolean;
+  breakoutLookback?: number;
+  breakoutMaxRangePct?: number;
+  breakoutVolumeMultiplier?: number;
 }
 
 // ---------- Admin health (mirrors /api/admin/health) ----------
@@ -206,7 +221,8 @@ export interface AdminHealth {
   totalTrades: number;
   lastSignalAt?: string;
   telegramEnabled: boolean;
-  binanceTestnet: boolean;
+  activeExchange?: string;
+  binanceTestnet?: boolean;
   uptime: string;
 }
 

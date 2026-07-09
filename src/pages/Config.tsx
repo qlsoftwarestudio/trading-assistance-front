@@ -80,10 +80,11 @@ const Config = () => {
               <Row label="Tamaño posición" value={`${cfg.positionSizePct}%`} />
               <Row label="Max trades simultáneos" value={cfg.maxConcurrentTrades} />
               <Row label="Max hold" value={`${cfg.maxHoldMinutes} min`} />
-              <Row label="Testnet Binance" value={
-                cfg.binanceTestnet
-                  ? <span className="flex items-center gap-1 text-warning"><AlertTriangle className="h-3 w-3" /> Sí (testnet)</span>
-                  : <span className="flex items-center gap-1 text-success"><ShieldCheck className="h-3 w-3" /> No (live)</span>
+              <Row label="Intercambio activo" value={
+                <span className="flex items-center gap-1 text-success">
+                  <ShieldCheck className="h-3 w-3" />
+                  {cfg.activeExchange ? cfg.activeExchange.toUpperCase() : "BINGX"} (live)
+                </span>
               } />
             </CardContent>
           </Card>
@@ -120,8 +121,8 @@ const Config = () => {
                   ? <span className="flex items-center gap-1 text-success"><CheckCircle2 className="h-3 w-3" /> Habilitado</span>
                   : <span className="flex items-center gap-1 text-muted-foreground"><XCircle className="h-3 w-3" /> Deshabilitado</span>
               } />
-              <Row label="Trailing Stop" value={`${cfg.trailingStopPct}%`} />
-              <Row label="Trailing activación" value={`+${cfg.trailingActivationPct}%`} />
+              <Row label="Trailing Stop" value={`${cfg.swingTrailingStopPct ?? cfg.trailingStopPct}%`} />
+              <Row label="Trailing activación" value={`+${cfg.swingTrailingActivationPct ?? cfg.trailingActivationPct}%`} />
               <Row label="Breakeven activación" value={`+${cfg.breakevenActivationPct}%`} />
               <Row label="Cooldown SL" value={`${cfg.slCooldownMinutes} min`} />
               <Row label="Max pérdida diaria" value={`${cfg.maxDailyLossPct}%`} />
@@ -200,6 +201,47 @@ const Config = () => {
                   {cfg.telegramEnabled ? "Conectado" : "Deshabilitado"}
                 </Badge>
               } />
+            </CardContent>
+          </Card>
+
+          {/* New features: Partial TP / Re-entry / Breakout */}
+          <Card className="border-strong bg-surface md:col-span-2">
+            <CardHeader className="pb-2">
+              <CardTitle className="text-sm font-medium">Mejoras recientes</CardTitle>
+              <CardDescription>Partial TP · Re-entry · Breakout Strategy</CardDescription>
+            </CardHeader>
+            <CardContent className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div className="space-y-0">
+                <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-1">✂️ Partial Take Profit</p>
+                <Row label="Estado" value={
+                  cfg.partialTpEnabled
+                    ? <span className="flex items-center gap-1 text-success"><CheckCircle2 className="h-3 w-3" /> Activo</span>
+                    : <span className="flex items-center gap-1 text-muted-foreground"><XCircle className="h-3 w-3" /> Off</span>
+                } />
+                <Row label="Cierra" value="50% en 1:1 R" />
+                <Row label="SL tras TP1" value="Mueve a breakeven" />
+              </div>
+              <div className="space-y-0">
+                <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-1">🔁 Re-entry Logic</p>
+                <Row label="Estado" value={
+                  cfg.reEntryEnabled
+                    ? <span className="flex items-center gap-1 text-success"><CheckCircle2 className="h-3 w-3" /> Activo</span>
+                    : <span className="flex items-center gap-1 text-muted-foreground"><XCircle className="h-3 w-3" /> Off</span>
+                } />
+                <Row label="Ventana" value={`${cfg.reEntryWindowMinutes ?? 15} min post-SL`} />
+                <Row label="Tamaño" value="50% del normal" />
+              </div>
+              <div className="space-y-0">
+                <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-1">💥 Breakout Strategy</p>
+                <Row label="Estado" value={
+                  cfg.useRangeBreakout
+                    ? <span className="flex items-center gap-1 text-success"><CheckCircle2 className="h-3 w-3" /> Activo</span>
+                    : <span className="flex items-center gap-1 text-muted-foreground"><XCircle className="h-3 w-3" /> Off</span>
+                } />
+                <Row label="Lookback" value={`${cfg.breakoutLookback ?? 20} velas`} />
+                <Row label="Rango máx" value={`< ${cfg.breakoutMaxRangePct ?? 2.5}%`} />
+                <Row label="Vol. mínimo" value={`${cfg.breakoutVolumeMultiplier ?? 2.5}x avg`} />
+              </div>
             </CardContent>
           </Card>
 

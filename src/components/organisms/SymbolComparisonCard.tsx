@@ -14,11 +14,11 @@ export const SymbolComparisonCard = ({ data }: Props) => {
         <CardHeader className="pb-2">
           <CardTitle className="text-sm text-muted-foreground font-medium flex items-center gap-2">
             <BarChart3 className="h-4 w-4 text-primary" />
-            Comparación HYPE vs SOL
+            Rendimiento por Símbolo
           </CardTitle>
         </CardHeader>
         <CardContent className="h-32 flex items-center justify-center text-sm text-muted-foreground">
-          Sin datos suficientes para comparar
+          Sin operaciones cerradas aún
         </CardContent>
       </Card>
     );
@@ -31,9 +31,9 @@ export const SymbolComparisonCard = ({ data }: Props) => {
       <CardHeader className="pb-2">
         <CardTitle className="text-sm text-muted-foreground font-medium flex items-center gap-2">
           <BarChart3 className="h-4 w-4 text-primary" />
-          Comparación HYPE vs SOL
+          Rendimiento por Símbolo
         </CardTitle>
-        <CardDescription className="text-xs">A/B testing por símbolo</CardDescription>
+        <CardDescription className="text-xs">{data.map(d => d.symbol.replace('USDT','')).join(' · ')} — stats por símbolo operado</CardDescription>
       </CardHeader>
       <CardContent className="pt-0">
         <div className="space-y-3">
