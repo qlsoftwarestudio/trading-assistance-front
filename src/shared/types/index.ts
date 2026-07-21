@@ -151,7 +151,6 @@ export interface StrategyConfig {
   rsiLength: number;
   rsiOversold: number;
   rsiOverbought: number;
-  rsiOverboughtUptrend: number;
   lookbackBars: number;
   killzoneThreshold: number;
   minMomentum: number;
@@ -173,22 +172,16 @@ export interface StrategyConfig {
   requireConfluence: boolean;
   requireVolume: boolean;
   minVolumeRatio?: number;
-  useVwapFilter: boolean;
-  vwapBandPct: number;
-  useEmaFilter: boolean;
-  emaPeriod: number;
-  useRegressionFilter: boolean;
-  regressionLookback: number;
-  useDeltaVolumeFilter: boolean;
-  deltaVolumeThreshold: number;
-  useStochBbFilter: boolean;
-  stochPeriod: number;
-  stochOversold: number;
-  stochOverbought: number;
-  bbPeriod: number;
-  bbStdDev: number;
-  bbProximityPct: number;
-  useBbBasedSl: boolean;
+  // Smart Money Concepts (SMC) — pure structure-based entry engine
+  useHtfStructureFilter: boolean;
+  htfTimeframe: string;
+  htfPivotStrength: number;
+  useOrderBlockFilter: boolean;
+  obPivotStrength: number;
+  obDisplacementAtr: number;
+  obMaxBlocks: number;
+  useStructuralSl: boolean;
+  rrMinRatio: number;
   autoAdjust: boolean;
   autoAdjustEnabled: boolean;
   autoAdjustMinTrades: number;
@@ -200,16 +193,11 @@ export interface StrategyConfig {
   symbolSessionUtc?: string;
   symbolRsiOversold?: string;
   symbolRsiOverbought?: string;
-  symbolBbPeriod?: string;
   swingTrailingStopPct?: number;
   swingTrailingActivationPct?: number;
   partialTpEnabled?: boolean;
   reEntryEnabled?: boolean;
   reEntryWindowMinutes?: number;
-  useRangeBreakout?: boolean;
-  breakoutLookback?: number;
-  breakoutMaxRangePct?: number;
-  breakoutVolumeMultiplier?: number;
 }
 
 // ---------- Admin health (mirrors /api/admin/health) ----------

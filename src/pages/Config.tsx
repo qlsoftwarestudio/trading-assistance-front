@@ -89,20 +89,21 @@ const Config = () => {
             </CardContent>
           </Card>
 
-          {/* RSI & entry filters */}
+          {/* SMC: HTF macro structure */}
           <Card className="border-strong bg-surface">
             <CardHeader className="pb-2">
-              <CardTitle className="text-sm font-medium">Filtros de entrada (RSI)</CardTitle>
-              <CardDescription>Condiciones de señal</CardDescription>
+              <CardTitle className="text-sm font-medium flex items-center gap-2">
+                HTF Macro Structure
+                <Badge variant="outline" className={cfg.useHtfStructureFilter ? "border-success/40 text-success" : "border-muted text-muted-foreground"}>
+                  {cfg.useHtfStructureFilter ? "ACTIVO" : "OFF"}
+                </Badge>
+              </CardTitle>
+              <CardDescription>Bloquea entradas contra la tendencia de H1</CardDescription>
             </CardHeader>
             <CardContent className="space-y-0">
-              <Row label="RSI Length" value={cfg.rsiLength} />
-              <Row label="RSI Oversold (LONG)" value={`< ${cfg.rsiOversold}`} />
-              <Row label="RSI Overbought (SHORT)" value={`> ${cfg.rsiOverbought}`} />
-              <Row label="RSI Overbought uptrend" value={`> ${cfg.rsiOverboughtUptrend}`} />
-              <Row label="Lookback Bars" value={cfg.lookbackBars} />
-              <Row label="Zone Percentile" value={`${cfg.killzoneThreshold}%`} />
-              <Row label="Min Momentum" value={`${cfg.minMomentum}%`} />
+              <Row label="Timeframe" value={cfg.htfTimeframe} />
+              <Row label="Pivot strength" value={cfg.htfPivotStrength} />
+              <Row label="Kill zone" value={`${cfg.killzoneThreshold}h`} />
             </CardContent>
           </Card>
 
@@ -129,54 +130,37 @@ const Config = () => {
             </CardContent>
           </Card>
 
-          {/* Advanced filters */}
-          <Card className="border-strong bg-surface">
-            <CardHeader className="pb-2">
-              <CardTitle className="text-sm font-medium">Filtros avanzados</CardTitle>
-              <CardDescription>VWAP · EMA · Regresión · Delta volumen</CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-0">
-              <Row label="VWAP filter" value={cfg.useVwapFilter
-                ? <span className="flex items-center gap-1 text-success"><CheckCircle2 className="h-3 w-3" /> ±{cfg.vwapBandPct}%</span>
-                : <span className="text-muted-foreground">Off</span>
-              } />
-              <Row label="EMA filter" value={cfg.useEmaFilter
-                ? <span className="flex items-center gap-1 text-success"><CheckCircle2 className="h-3 w-3" /> EMA{cfg.emaPeriod}</span>
-                : <span className="text-muted-foreground">Off</span>
-              } />
-              <Row label="Regresión lineal" value={cfg.useRegressionFilter
-                ? <span className="flex items-center gap-1 text-success"><CheckCircle2 className="h-3 w-3" /> {cfg.regressionLookback} velas</span>
-                : <span className="text-muted-foreground">Off</span>
-              } />
-              <Row label="Delta volumen" value={cfg.useDeltaVolumeFilter
-                ? <span className="flex items-center gap-1 text-success"><CheckCircle2 className="h-3 w-3" /> umbral &gt;{cfg.deltaVolumeThreshold}</span>
-                : <span className="text-muted-foreground">Off</span>
-              } />
-            </CardContent>
-          </Card>
-
-          {/* Stochastic + Bollinger Bands */}
+          {/* SMC: Order Blocks */}
           <Card className="border-strong bg-surface">
             <CardHeader className="pb-2">
               <CardTitle className="text-sm font-medium flex items-center gap-2">
-                Stochastic + Bollinger Bands
-                <Badge variant="outline" className={cfg.useStochBbFilter ? "border-success/40 text-success" : "border-muted text-muted-foreground"}>
-                  {cfg.useStochBbFilter ? "ACTIVO" : "OFF"}
+                Order Blocks
+                <Badge variant="outline" className={cfg.useOrderBlockFilter ? "border-success/40 text-success" : "border-muted text-muted-foreground"}>
+                  {cfg.useOrderBlockFilter ? "ACTIVO" : "OFF"}
                 </Badge>
               </CardTitle>
-              <CardDescription>Filtro de triple confluencia</CardDescription>
+              <CardDescription>M5 solo dispara dentro de una zona demand/supply válida</CardDescription>
             </CardHeader>
             <CardContent className="space-y-0">
-              <Row label="Periodo Stoch" value={cfg.stochPeriod} />
-              <Row label="Stoch Oversold (LONG)" value={`< ${cfg.stochOversold}`} />
-              <Row label="Stoch Overbought (SHORT)" value={`> ${cfg.stochOverbought}`} />
-              <Row label="BB Periodo" value={cfg.bbPeriod} />
-              <Row label="BB Desv. estándar" value={`±${cfg.bbStdDev}σ`} />
-              <Row label="BB proximidad" value={`< ${cfg.bbProximityPct}%`} />
-              <Row label="SL dinámico BB" value={cfg.useBbBasedSl
-                ? <span className="flex items-center gap-1 text-success"><CheckCircle2 className="h-3 w-3" /> Habilitado</span>
-                : <span className="flex items-center gap-1 text-muted-foreground"><XCircle className="h-3 w-3" /> Off</span>
-              } />
+              <Row label="Pivot strength" value={cfg.obPivotStrength} />
+              <Row label="Desplazamiento mín." value={`${cfg.obDisplacementAtr}× ATR`} />
+              <Row label="Max blocks activos" value={cfg.obMaxBlocks} />
+            </CardContent>
+          </Card>
+
+          {/* SMC: Structural SL + R:R */}
+          <Card className="border-strong bg-surface">
+            <CardHeader className="pb-2">
+              <CardTitle className="text-sm font-medium flex items-center gap-2">
+                Structural SL + R:R
+                <Badge variant="outline" className={cfg.useStructuralSl ? "border-success/40 text-success" : "border-muted text-muted-foreground"}>
+                  {cfg.useStructuralSl ? "ACTIVO" : "OFF"}
+                </Badge>
+              </CardTitle>
+              <CardDescription>SL más allá del último swing · aborta si no llega al R:R mínimo</CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-0">
+              <Row label="R:R mínimo" value={`${cfg.rrMinRatio}:1`} />
             </CardContent>
           </Card>
 
@@ -208,7 +192,7 @@ const Config = () => {
           <Card className="border-strong bg-surface md:col-span-2">
             <CardHeader className="pb-2">
               <CardTitle className="text-sm font-medium">Mejoras recientes</CardTitle>
-              <CardDescription>Partial TP · Re-entry · Breakout Strategy</CardDescription>
+              <CardDescription>Partial TP · Re-entry · Motor SMC</CardDescription>
             </CardHeader>
             <CardContent className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <div className="space-y-0">
@@ -232,15 +216,9 @@ const Config = () => {
                 <Row label="Tamaño" value="50% del normal" />
               </div>
               <div className="space-y-0">
-                <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-1">💥 Breakout Strategy</p>
-                <Row label="Estado" value={
-                  cfg.useRangeBreakout
-                    ? <span className="flex items-center gap-1 text-success"><CheckCircle2 className="h-3 w-3" /> Activo</span>
-                    : <span className="flex items-center gap-1 text-muted-foreground"><XCircle className="h-3 w-3" /> Off</span>
-                } />
-                <Row label="Lookback" value={`${cfg.breakoutLookback ?? 20} velas`} />
-                <Row label="Rango máx" value={`< ${cfg.breakoutMaxRangePct ?? 2.5}%`} />
-                <Row label="Vol. mínimo" value={`${cfg.breakoutVolumeMultiplier ?? 2.5}x avg`} />
+                <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-1">🎯 Motor de entrada</p>
+                <Row label="Modo" value="Smart Money Concepts (SMC)" />
+                <Row label="Confirmación" value="HTF structure + Order Block" />
               </div>
             </CardContent>
           </Card>

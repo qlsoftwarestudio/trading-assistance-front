@@ -9,12 +9,12 @@ import { Badge } from "@/components/ui/badge";
 import { Power, Trash2, Plus, Bot } from "lucide-react";
 import { useAuthStore } from "@/store/authStore";
 
-const SYMBOLS = ["HYPEUSDT", "SOLUSDT"];
+const SYMBOLS = ["EURUSD", "GBPUSD", "USDJPY"];
 
 const Profile = () => {
   const user = useAuthStore((s) => s.user);
   const queryClient = useQueryClient();
-  const [newBot, setNewBot] = useState({ name: "", symbol: "HYPEUSDT", apiKey: "", apiSecret: "" });
+  const [newBot, setNewBot] = useState({ name: "", symbol: "EURUSD", apiKey: "", apiSecret: "" });
 
   const { data: bots, isLoading: botsLoading, error: botsError } = useQuery({ queryKey: ["bots"], queryFn: () => api.getBots(), refetchInterval: 30_000 });
 
@@ -22,7 +22,7 @@ const Profile = () => {
     mutationFn: api.createBot,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["bots"] });
-      setNewBot({ name: "", symbol: "HYPEUSDT", apiKey: "", apiSecret: "" });
+      setNewBot({ name: "", symbol: "EURUSD", apiKey: "", apiSecret: "" });
     },
   });
 
@@ -107,11 +107,11 @@ const Profile = () => {
                 </select>
               </div>
               <div className="space-y-1">
-                <Label className="text-xs">API Key (Binance)</Label>
+                <Label className="text-xs">API Key (BingX)</Label>
                 <Input size={1} className="h-8 text-xs" type="password" value={newBot.apiKey} onChange={(e) => setNewBot({ ...newBot, apiKey: e.target.value })} />
               </div>
               <div className="space-y-1">
-                <Label className="text-xs">API Secret (Binance)</Label>
+                <Label className="text-xs">API Secret (BingX)</Label>
                 <Input size={1} className="h-8 text-xs" type="password" value={newBot.apiSecret} onChange={(e) => setNewBot({ ...newBot, apiSecret: e.target.value })} />
               </div>
             </div>
