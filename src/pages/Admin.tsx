@@ -185,7 +185,9 @@ const Admin = () => {
                 cfg.contextEnabled ? "ctx:ON" : "ctx:OFF",
                 cfg.useAtrStop ? `ATR(${cfg.atrPeriod})` : "fixed SL",
                 `TS: ${cfg.trailingStopPct}%`,
-                cfg.useVwapFilter ? "VWAP:ON" : "VWAP:OFF",
+                cfg.useHtfStructureFilter ? "HTF:ON" : "HTF:OFF",
+                cfg.useOrderBlockFilter ? "OB:ON" : "OB:OFF",
+                cfg.useStructuralSl ? `SL:${cfg.rrMinRatio}:1` : "SL:ATR",
                 cfg.binanceTestnet ? "testnet" : "live",
               ].map((tag) => (
                 <span key={tag} className="rounded bg-muted px-2 py-0.5">{tag}</span>
