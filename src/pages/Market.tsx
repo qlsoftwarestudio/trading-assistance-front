@@ -11,8 +11,8 @@ const actionStyle = (action: Signal["action"]) => {
   return "border-muted text-muted-foreground";
 };
 
-const fmt = (v: number | undefined, decimals = 2) =>
-  v !== undefined ? v.toFixed(decimals) : "—";
+const fmt = (v: number | null | undefined, decimals = 2) =>
+  v != null ? v.toFixed(decimals) : "—";
 
 const fmtDate = (iso: string) =>
   new Date(iso).toLocaleString("es-ES", { day: "2-digit", month: "2-digit", hour: "2-digit", minute: "2-digit" });
